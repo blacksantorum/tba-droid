@@ -2,6 +2,8 @@ package com.tba.theboxingapp;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -22,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.tba.theboxingapp.Model.User;
+import com.tba.theboxingapp.Requests.TBARequestFactory;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -41,8 +45,11 @@ import java.util.Map;
 
 public class LoginActivity extends Activity {
 
+    public static final String PREFS_NAME = "TBAPref";
+
     // private RequestQueue mRequestQueue = RailsClient.getInstance(this).getRequestQueue();
     private Button mLoginButton;
+    private ProgressBar mProgressBar;
 
     private String runThroughSuperSecretHash(String screenname)
     {
@@ -79,6 +86,20 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         mLoginButton = (Button)findViewById(R.id.login_button);
+        mProgressBar = ((ProgressBar) findViewById(R.id.progressBar));
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setVisibility(View.INVISIBLE);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String userString = settings.getString("User","");
+        if (userString != "") {
+            try {
+                JSONObject userObject = new JSONObject(userString);
+                signInWithRails(userObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
@@ -125,37 +146,42 @@ public class LoginActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void signInWithRails()
+    private void signInWithRails(JSONObject user)
     {
+
+        final JSONObject finalUser = user;
+
+        mProgressBar.setVisibility(View.VISIBLE);
+
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://www.theboxingapp.com/api/signin";
-
-        JSONObject user = new JSONObject();
-        try {
-            user.put("id",ParseTwitterUtils.getTwitter().getUserId());
-            user.put("screen_name", ParseTwitterUtils.getTwitter().getScreenName());
-            user.put("password",
-                    runThroughSuperSecretHash(ParseTwitterUtils.getTwitter().getScreenName()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest request = new JsonObjectRequest(url, user, new Response.Listener<JSONObject>() {
+        queue.add(TBARequestFactory.LoginRequest(user,new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 // Display the first 500 characters of the response string.
+                mProgressBar.setVisibility(View.INVISIBLE);
                 Log.i("Response","Response is: "+ response.toString());
                 User.currentUser().updateWithLoginResponse(response);
                 // Save user
+
+                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("User",finalUser.toString());
+                editor.commit();
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("login",true);
+                setResult(RESULT_OK,returnIntent);
                 finish();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
-        queue.add(request);
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.i("Error", "Response is: " + error.toString());
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                }
+        ));
     }
 
     private void connect()
@@ -167,7 +193,17 @@ public class LoginActivity extends Activity {
                     mLoginButton.setEnabled(true);
                     Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
                 } else {
-                    signInWithRails();
+                    JSONObject TBAuser = new JSONObject();
+                    try {
+                        TBAuser.put("id", ParseTwitterUtils.getTwitter().getUserId());
+                        TBAuser.put("screen_name", ParseTwitterUtils.getTwitter().getScreenName());
+                        TBAuser.put("password",
+                                runThroughSuperSecretHash(ParseTwitterUtils.getTwitter().getScreenName()));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    signInWithRails(TBAuser);
                     // new MakeTwitterRequestTask().execute();
                 }
             }
