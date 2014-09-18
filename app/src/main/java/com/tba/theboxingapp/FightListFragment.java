@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FightListFragment extends Fragment {
+    private static final String TYPE_PARAM = "type_param";
 
     public enum ListType { FEATURED, PAST };
 
@@ -49,7 +50,7 @@ public class FightListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public static FightListFragment newInstance() {
+    public static FightListFragment newInstance(ListType listType) {
         FightListFragment fragment = new FightListFragment();
         return fragment;
     }
