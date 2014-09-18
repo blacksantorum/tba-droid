@@ -173,15 +173,7 @@ public class LoginActivity extends Activity {
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.i("Error", "Response is: " + error.toString());
-                        mProgressBar.setVisibility(View.INVISIBLE);
-                    }
-                }
-        ));
+        }));
     }
 
     private void connect()

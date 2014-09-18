@@ -8,8 +8,7 @@ import org.json.JSONObject;
 /**
  * Created by christibbs on 9/14/14.
  */
-public class Place {
-    public int id;
+public class Place extends BaseModel {
     public String name;
     public String address;
     public String city;
@@ -39,13 +38,6 @@ public class Place {
     }
 
     //<editor-fold desc="Accessors">
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
