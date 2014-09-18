@@ -69,8 +69,6 @@ public class FightListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_fight_list, container, false);
         mExpandableListView = (ExpandableListView) v.findViewById(R.id.fight_list);
-        Log.i("view", "height is " + v.getHeight() + "width is" + v.getWidth());
-        Log.i("elv", "height is " + mExpandableListView.getHeight() + "width is" + mExpandableListView.getWidth());
         return v;
     }
 
@@ -109,10 +107,11 @@ public class FightListFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
-                Log.i("set","I'm setting the adapter!");
-                // Log.i("view", "height is " + v.getHeight() + "width is" + v.getWidth());
-                Log.i("elv", "height is " + mExpandableListView.getHeight() + "width is" + mExpandableListView.getWidth());
+
                 mExpandableListView.setAdapter(mFightListAdapter);
+                for(int i=0; i < mFightListAdapter.getGroupCount(); i++) {
+                    mExpandableListView.expandGroup(i);
+                }
                 /*
                 android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {
