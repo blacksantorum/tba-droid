@@ -1,11 +1,19 @@
 package com.tba.theboxingapp.Model;
 
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Created by christibbs on 9/16/14.
  */
-public class Fight {
+public class Fight extends BaseModel {
     public enum State {
         UPCOMING, IN_PROGRESS, PAST
     }
@@ -15,10 +23,56 @@ public class Fight {
     public Date date;
     public State state;
     public int winnerId;
+    public int currentUserPickedWinnerId;
     public boolean stoppage;
     public String weightClass;
     public int rounds;
     public String location;
+
+    public Fight (JSONObject object) {
+        Log.v("Fight", object.toString());
+        try {
+            this.id = object.getInt("id");
+            this.location = object.getString("location");
+
+            String dateString = object.getString("date");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            this.date = sdf.parse(dateString);
+            /*
+            if (object.get("users_pick") != null) {
+                this.currentUserPickedWinnerId = object.getInt("users_pick");
+            } */
+
+            JSONArray boxersArray = object.getJSONArray("boxers");
+
+            boxerA = new Boxer(boxersArray.getJSONObject(0));
+            boxerB = new Boxer(boxersArray.getJSONObject(1));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + id;
+        result = 31 * result + (boxerA == null ? 0 : boxerA.hashCode());
+        result = 31 * result + (boxerB == null ? 0 : boxerB.hashCode());
+        result = 31 * result + (date == null ? 0 : date.hashCode());
+        result = 31 * result + state.hashCode();
+        result = 31 * result + winnerId;
+        result = 31 * result + currentUserPickedWinnerId;
+        result = 31 * result + (stoppage ? 1 : 0);
+        result = 31 * result + (weightClass == null ? 0 : weightClass.hashCode());
+        result = 31 * result + rounds;
+        result = 31 * result + (location == null ? 0 : location.hashCode());
+
+        return result;
+    }
 
     //<editor-fold desc="Accessors">
     public Boxer getBoxerA() {

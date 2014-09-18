@@ -37,6 +37,22 @@ public class Place extends BaseModel {
         }
     }
 
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        result = 31 * result + id;
+        result = 31 * result +(name == null ? 0 : name.hashCode());
+        result = 31 * result +(address == null ? 0 : address.hashCode());
+        result = 31 * result +(city == null ? 0 : city.hashCode());
+        result = 31 * result +(zip == null ? 0 : zip.hashCode());
+        result = 31 * result +(country == null ? 0 : country.hashCode());
+        result = 31 * result +(location == null ? 0 : location.hashCode());
+        result = 31 * result +(phoneNumber == null ? 0 : phoneNumber.hashCode());
+
+        return result;
+    }
+
     //<editor-fold desc="Accessors">
 
     public String getName() {

@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,8 +35,8 @@ import com.parse.ParseUser;
 import com.parse.PushService;
 
 
-public class TBAActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        FightListFragment.OnFragmentInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -46,6 +47,11 @@ public class TBAActivity extends Activity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +101,11 @@ public class TBAActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
+        if (position == 0) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, FightListFragment.newInstance()).commit();
+        }
         if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()

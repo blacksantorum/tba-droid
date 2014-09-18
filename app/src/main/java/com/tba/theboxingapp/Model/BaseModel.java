@@ -30,6 +30,28 @@ public class BaseModel {
         this.updatedAt = updatedAt;
     }
 
+    @Override public boolean equals(Object o) {
+        // Return true if the objects are identical.
+        // (This is just an optimization, not required for correctness.)
+        if (this == o) {
+            return true;
+        }
+
+        // Return false if the other object has the wrong type.
+        // This type may be an interface depending on the interface's specification.
+        if (!(o instanceof BaseModel)) {
+            return false;
+        }
+
+        // Cast to the appropriate type.
+        // This will succeed because of the instanceof, and lets us access private fields.
+        BaseModel lhs = (BaseModel) o;
+
+        // Check each field. Primitive fields, reference fields, and nullable reference
+        // fields are all treated differently.
+        return lhs.id == this.id;
+    }
+
     public int id;
     public Date createdAt;
     public Date updatedAt;

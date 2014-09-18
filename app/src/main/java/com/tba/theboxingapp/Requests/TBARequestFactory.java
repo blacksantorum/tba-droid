@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 public class TBARequestFactory {
 
-    private static final String BASE_URL = "http://www.theboxingapp.com/api/";
+    private static final String BASE_URL = "http://www.theboxingapp.com/api/v1/";
 
     private static JSONObject authObject()
     {
@@ -75,6 +75,8 @@ public class TBARequestFactory {
         }
 
         url += "?session_token=" + User.currentUser().sessionToken;
+
+        Log.i("url",url);
 
         return new JsonArrayRequest(url,listener, new Response.ErrorListener() {
             @Override

@@ -1,5 +1,7 @@
 package com.tba.theboxingapp.Model;
 
+import java.util.Arrays;
+
 /**
  * Created by christibbs on 9/16/14.
  */
@@ -8,6 +10,18 @@ public class Comment extends BaseModel {
     public User user;
     public int[] taggedUsers;
     public int fightId;
+
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        result = 31 * result + id;
+        result = 31 * result +(content == null ? 0 : content.hashCode());
+        result = 31 * Arrays.hashCode(taggedUsers);
+        result = 31 * result + id;
+
+        return result;
+    }
 
     //<editor-fold desc="Accessors">
     public int getFightId() {

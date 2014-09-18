@@ -5,6 +5,8 @@ import com.parse.ParseTwitterUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 /**
  * Created by christibbs on 9/13/14.
  */
@@ -37,6 +39,8 @@ public class User extends BaseModel {
             this.handle = ParseTwitterUtils.getTwitter().getScreenName();
             this.sessionToken = userObject.getString("session_token");
             this.twitterId = ParseTwitterUtils.getTwitter().getUserId();
+            this.profileImageUrl = userObject.getString("img");
+            this.name = userObject.getString("name");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -48,6 +52,22 @@ public class User extends BaseModel {
 
     }
 
+    @Override public int hashCode() {
+        // Start with a non-zero constant.
+        int result = 17;
+
+        // Include a hash for each field.
+        result = 31 * result + id;
+        result = 31 * result + (handle == null ? 0 : handle.hashCode());
+        result = 31 * result + (name == null ? 0 : name.hashCode());
+        result = 31 * result + (profileImageUrl == null ? 0 : profileImageUrl.hashCode());
+        result = 31 * result + (twitterId == null ? 0 : twitterId.hashCode());
+        result = 31 * result + (sessionToken == null ? 0 : sessionToken.hashCode());
+
+        return result;
+    }
+
+    //<editor-fold desc="Accessors">
     public String getHandle() {
         return handle;
     }
@@ -79,5 +99,6 @@ public class User extends BaseModel {
     public void setTwitterId(String twitterId) {
         this.twitterId = twitterId;
     }
+    //</editor-fold>
    
 }
