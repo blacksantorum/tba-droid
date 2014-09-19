@@ -1,5 +1,11 @@
 package com.tba.theboxingapp.Model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * Created by christibbs on 9/16/14.
  */
@@ -7,7 +13,9 @@ public class Prediction extends BaseModel {
     public int fightId;
     public int winnerId;
     public boolean stoppage;
+    // ?
     public User user;
+    public int userId;
 
     @Override public int hashCode() {
         // Start with a non-zero constant.
@@ -20,6 +28,26 @@ public class Prediction extends BaseModel {
         result = 31 * result + (user == null ? 0 : user.hashCode());
 
         return result;
+    }
+
+    public Prediction (JSONObject object)
+    {
+        try {
+            id = object.getInt("id");
+            stoppage = object.getBoolean("ko");
+            fightId = object.getInt("fight_id");
+            userId = object.getInt("user_id");
+
+            String updatedAtDateString = object.getString("updated_at");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            this.updatedAt = sdf.parse(updatedAtDateString);
+
+            winnerId = object.getInt("winner_id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     //<editor-fold desc="Accessors">

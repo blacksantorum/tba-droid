@@ -3,6 +3,7 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 import android.app.ExpandableListActivity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -113,6 +114,19 @@ public class FightListFragment extends Fragment {
                 for(int i=0; i < mFightListAdapter.getGroupCount(); i++) {
                     mExpandableListView.expandGroup(i);
                 }
+                mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        Date date = mFightListAdapter.dates.get(groupPosition);
+                        Fight fight = mFightListAdapter.fights.get(date).get(childPosition);
+                        FragmentManager fragmentManager = getFragmentManager();
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.container, FightDetailFragment.newInstance(fight)).commit();
+
+                        return true;
+                    }
+                   }
+                );
                 /*
                 android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {

@@ -4,11 +4,26 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Fight;
+import com.tba.theboxingapp.Requests.TBARequestFactory;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -23,7 +38,20 @@ import com.tba.theboxingapp.Model.Fight;
 public class FightDetailFragment extends Fragment {
     private static final String FIGHT_PARAM = "fight_param";
 
-    private Fight fight;
+    private int mFightId;
+    private Fight mFight;
+    private TextView mBoxerAPercentageLabel;
+    private TextView mBoxerANameLabel;
+
+    private TextView mBoxerBPercentageLabel;
+    private TextView mBoxerBNameLabel;
+
+    private TextView mWeightClassLabel;
+    private ListView mCommentsListView;
+
+    private RequestQueue mRequestQueue;
+
+    private List<Comment> mComments;
 
     private OnFragmentInteractionListener mListener;
 
@@ -31,19 +59,46 @@ public class FightDetailFragment extends Fragment {
     public static FightDetailFragment newInstance(Fight fight) {
         FightDetailFragment fragment = new FightDetailFragment();
         Bundle args = new Bundle();
-        args.putInt("fight_param",fight.id);
+        args.putInt(FIGHT_PARAM,fight.id);
         fragment.setArguments(args);
         return fragment;
     }
     public FightDetailFragment() {
-        // Required empty public constructor
+         mComments = new ArrayList<Comment>();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.fight = (Fight)getArguments().get(FIGHT_PARAM);
+            this.mFightId = getArguments().getInt(FIGHT_PARAM);
+
+            Log.i("fight_id", "Fight id " + mFightId);
+            mRequestQueue = Volley.newRequestQueue(getActivity());
+            mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject object) {
+                    Log.i("fight",object.toString());
+                }
+            },mFightId));
+            mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
+                   @Override
+                   public void onResponse(JSONArray object) {
+                       Log.i("fight",object.toString());
+                   }
+                },mFightId));
+        }
+    }
+
+    private void updateComments(JSONArray object)
+    {
+        mComments.clear();
+        for (int i = 0; i < object.length() ; i++) {
+            try {
+                mComments.add(new Comment(object.getJSONObject(i).getJSONObject("comment")));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -51,7 +106,15 @@ public class FightDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_fight_detail, container, false);
+        View v = inflater.inflate(R.layout.fragment_fight_detail, container, false);
+        mBoxerANameLabel = (TextView)v.findViewById(R.id.boxerANameLabel);
+        mBoxerBNameLabel = (TextView)v.findViewById(R.id.boxerBNameLabel);
+        mBoxerAPercentageLabel = (TextView)v.findViewById(R.id.boxerAPickPercentageLabel);
+        mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
+        mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
+
+        mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -64,6 +127,7 @@ public class FightDetailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {

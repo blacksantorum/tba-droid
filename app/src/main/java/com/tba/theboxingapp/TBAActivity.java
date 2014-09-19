@@ -36,7 +36,7 @@ import com.parse.PushService;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        FightListFragment.OnFragmentInteractionListener {
+        FightListFragment.OnFragmentInteractionListener, FightDetailFragment.OnFragmentInteractionListener  {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -104,7 +104,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         if (position == 1) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, FightListFragment.newInstance()).commit();
+                    .replace(R.id.container, FightListFragment.newInstance(FightListFragment.ListType.FEATURED)).commit();
         }
         else if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();

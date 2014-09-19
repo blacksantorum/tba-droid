@@ -86,6 +86,18 @@ public class TBARequestFactory {
         });
     }
 
+    public static JsonObjectRequest FightRequest(Response.Listener<JSONObject> listener, int fightId)
+    {
+        String url = BASE_URL + "fights/" + fightId + "?session_token=" + User.currentUser().sessionToken;
+
+        return new JsonObjectRequest(url,null,listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
+
     public static JsonArrayRequest CommentsRequest(Response.Listener<JSONArray> listener,
                                                    int fightId) {
         String url = BASE_URL + "fights/";

@@ -49,7 +49,14 @@ public class User extends BaseModel {
 
     public User(JSONObject object)
     {
-
+        try {
+           id = object.getInt("id");
+           profileImageUrl = object.getString("img");
+           handle = object.getString("screen_name");
+           name = object.getString("name");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override public int hashCode() {

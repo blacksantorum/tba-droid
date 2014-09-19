@@ -8,6 +8,7 @@
     <ExpandableListView android:id="@+id/fight_list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
+        android:background="@drawable/abc_menu_dropdown_panel_holo_light"
         />
 
 </LinearLayout>
