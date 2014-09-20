@@ -141,7 +141,7 @@ public class FightListFragment extends Fragment {
                 */
 
             }
-        }, true));
+        }, false));
 
 
         try {

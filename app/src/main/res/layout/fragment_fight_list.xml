@@ -10,5 +10,4 @@
         android:layout_width="match_parent"
         android:background="@drawable/abc_menu_dropdown_panel_holo_light"
         />
-
 </LinearLayout>

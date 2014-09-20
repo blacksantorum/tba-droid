@@ -1,6 +1,7 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,21 +9,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.internal.de;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Fight;
+import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.text.format.DateUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -48,6 +57,7 @@ public class FightDetailFragment extends Fragment {
 
     private TextView mWeightClassLabel;
     private ListView mCommentsListView;
+    private CommentArrayAdapter mCommentArrayAdapter;
 
     private RequestQueue mRequestQueue;
 
@@ -84,7 +94,7 @@ public class FightDetailFragment extends Fragment {
             mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
                    @Override
                    public void onResponse(JSONArray object) {
-                       Log.i("fight",object.toString());
+                       updateComments(object);
                    }
                 },mFightId));
         }
@@ -100,6 +110,18 @@ public class FightDetailFragment extends Fragment {
                 e.printStackTrace();
             }
         }
+
+        Comment[] commentArray = new Comment[mComments.size()];
+        for (int i = 0; i < mComments.size(); i ++) {
+            commentArray[i] = mComments.get(i);
+        }
+
+        if (mCommentArrayAdapter == null) {
+            mCommentArrayAdapter = new CommentArrayAdapter(getActivity(),commentArray);
+            mCommentsListView.setAdapter(mCommentArrayAdapter);
+        }
+        mCommentArrayAdapter.comments = commentArray;
+        mCommentArrayAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -157,4 +179,69 @@ public class FightDetailFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    public class CommentArrayAdapter extends ArrayAdapter<Comment> {
+        private final Context context;
+        public Comment[] comments;
+        private ImageLoader mImageLoader;
+        private RequestQueue mRequestQueue;
+
+        public CommentArrayAdapter(Context context, Comment[] comments) {
+            super(context, R.layout.fight_comment_detail, comments );
+            this.context = context;
+        }
+
+        private RequestQueue getRequestQueue () {
+            if (mRequestQueue == null) {
+                mRequestQueue = Volley.newRequestQueue(context);
+            }
+            return mRequestQueue;
+        }
+
+        private ImageLoader getImageLoader() {
+            getRequestQueue();
+            if (mImageLoader == null) {
+                mImageLoader = new ImageLoader(this.mRequestQueue, new LruBitmapCache());
+            }
+            return this.mImageLoader;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Comment comment = comments[position];
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
+            NetworkImageView userImageView = (NetworkImageView)v.findViewById(R.id.commentUserImageView);
+            TextView userHandleLabel = (TextView)v.findViewById(R.id.commentUserHandleTextView);
+            TextView userPickLabel = (TextView)v.findViewById(R.id.commentUserHandleTextView);
+            TextView commentContentLabel = (TextView)v.findViewById(R.id.commentContentTextView);
+            TextView timeAgoLabel = (TextView)v.findViewById(R.id.timeAgoLabel);
+            ImageButton jabButton = (ImageButton)v.findViewById(R.id.jabButton);
+            TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
+            TextView deleteButton = (TextView)v.findViewById(R.id.deleteButton);
+
+            userImageView.setImageUrl(comment.user.profileImageUrl, getImageLoader());
+            userHandleLabel.setText(comment.user.handle);
+            commentContentLabel.setText(comment.body);
+            timeAgoLabel.setText(prettyTimeAgo(comment.createdAt));
+            likesLabel.setText(new String("" +comment.likes));
+            if (User.currentUser() == comment.user) {
+                deleteButton.setVisibility(View.VISIBLE);
+            } else {
+                deleteButton.setVisibility(View.INVISIBLE);
+            }
+
+            return v;
+        }
+
+        private CharSequence prettyTimeAgo(Date date)
+        {
+            Date currentDate = new Date();
+            long currentDateLong = currentDate.getTime();
+            long oldDate = date.getTime();
+
+            return DateUtils
+                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+        }
+    }
 }

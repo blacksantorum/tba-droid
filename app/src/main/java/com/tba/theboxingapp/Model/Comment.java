@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Created by christibbs on 9/16/14.
@@ -41,15 +42,16 @@ public class Comment extends BaseModel {
 
             String createdAtDateString = object.getString("created_at");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-            this.createdAt = sdf.parse(createdAtDateString);
+            //this.createdAt = sdf.parse(createdAtDateString);
+            this.createdAt = new Date();
 
             prediction = new Prediction(object.getJSONObject("pick"));
             user = new User(object.getJSONObject("user"));
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (ParseException e) {
+        } /*catch (ParseException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     //<editor-fold desc="Accessors">

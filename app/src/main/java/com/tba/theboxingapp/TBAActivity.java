@@ -104,7 +104,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         if (position == 1) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, FightListFragment.newInstance(FightListFragment.ListType.FEATURED)).commit();
+                    .replace(R.id.container, FightListFragment.newInstance(FightListFragment.ListType.PAST)).commit();
         }
         else if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();

@@ -80,7 +80,7 @@
     <ListView
         android:id="@+id/comments_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/fight_detail_overlay"
         android:background="@drawable/abc_menu_dropdown_panel_holo_light"
      />
