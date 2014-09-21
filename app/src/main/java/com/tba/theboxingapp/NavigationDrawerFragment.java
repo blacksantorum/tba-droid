@@ -4,6 +4,7 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Context;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.tba.theboxingapp.Model.OptionItem;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -278,5 +281,12 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
+    }
+
+    public class MenuAdapter extends ArrayAdapter<OptionItem> {
+        private final Context context;
+        private OptionItem[] items;
+
+
     }
 }

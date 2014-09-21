@@ -83,6 +83,13 @@ public class FightListFragment extends Fragment {
         mLoadingFightsProgress = (ProgressBar)v.findViewById(R.id.loadFightsProgress);
         mLoadingFightsTextView = (TextView)v.findViewById(R.id.loadFightsTextView);
 
+        mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                return true;
+            }
+        });
+
         loadFights();
 
         return v;
