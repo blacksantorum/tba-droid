@@ -17,6 +17,7 @@ import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -30,6 +31,7 @@ import com.tba.theboxingapp.Requests.TBARequestFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -40,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FightListFragment extends Fragment {
-    private static final String TYPE_PARAM = "type_param";
+    private static final String LOGIN_TYPE_PARAM = "login_type_param";
 
     public enum ListType { FEATURED, PAST };
 
@@ -48,11 +50,16 @@ public class FightListFragment extends Fragment {
     private FightListAdapter mFightListAdapter;
     private RequestQueue mRequestQueue;
     private ExpandableListView mExpandableListView;
+    private ProgressBar mLoadingFightsProgress;
+    private TextView mLoadingFightsTextView;
 
     private OnFragmentInteractionListener mListener;
 
     public static FightListFragment newInstance(ListType listType) {
         FightListFragment fragment = new FightListFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(LOGIN_TYPE_PARAM,listType);
+        fragment.setArguments(args);
         return fragment;
     }
     public FightListFragment() {
@@ -62,7 +69,9 @@ public class FightListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (getArguments() != null) {
+            mListType = (ListType)getArguments().getSerializable(LOGIN_TYPE_PARAM);
+        }
     }
 
     @Override
@@ -71,6 +80,11 @@ public class FightListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_fight_list, container, false);
         mExpandableListView = (ExpandableListView) v.findViewById(R.id.fight_list);
+        mLoadingFightsProgress = (ProgressBar)v.findViewById(R.id.loadFightsProgress);
+        mLoadingFightsTextView = (TextView)v.findViewById(R.id.loadFightsTextView);
+
+        loadFights();
+
         return v;
     }
 
@@ -84,9 +98,27 @@ public class FightListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    private void loadFights()
+    {
         mFightListAdapter = new FightListAdapter(getActivity());
 
         mRequestQueue = Volley.newRequestQueue(getActivity());
+
+        mExpandableListView.setVisibility(View.INVISIBLE);
+        mLoadingFightsProgress.setVisibility(View.VISIBLE);
+        mLoadingFightsTextView.setVisibility(View.VISIBLE);
+
+        boolean featured = (mListType == ListType.FEATURED);
 
         mRequestQueue.add(TBARequestFactory.FightsRequest(new Response.Listener<JSONArray>() {
             @Override
@@ -115,41 +147,23 @@ public class FightListFragment extends Fragment {
                     mExpandableListView.expandGroup(i);
                 }
                 mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        Date date = mFightListAdapter.dates.get(groupPosition);
-                        Fight fight = mFightListAdapter.fights.get(date).get(childPosition);
-                        FragmentManager fragmentManager = getFragmentManager();
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.container, FightDetailFragment.newInstance(fight)).commit();
+                                                                @Override
+                                                                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                                                                    Date date = mFightListAdapter.dates.get(groupPosition);
+                                                                    Fight fight = mFightListAdapter.fights.get(date).get(childPosition);
+                                                                    FragmentManager fragmentManager = getFragmentManager();
+                                                                    fragmentManager.beginTransaction()
+                                                                            .replace(R.id.container, FightDetailFragment.newInstance(fight)).commit();
 
-                        return true;
-                    }
-                   }
+                                                                    return true;
+                                                                }
+                                                            }
                 );
-                /*
-                android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    public void run() {
-                        if (mExpandableListView != null) {
-                            mFightListAdapter.notifyDataSetChanged();
-                        } else {
-                            Log.i("elv", "ListView is null");
-                        }
-                    }
-                });
-                */
-
+                mExpandableListView.setVisibility(View.VISIBLE);
+                mLoadingFightsProgress.setVisibility(View.INVISIBLE);
+                mLoadingFightsTextView.setVisibility(View.INVISIBLE);
             }
-        }, false));
-
-
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+        }, featured));
     }
 
     @Override

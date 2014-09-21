@@ -1,5 +1,5 @@
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +8,28 @@
     <ExpandableListView android:id="@+id/fight_list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:background="@drawable/abc_menu_dropdown_panel_holo_light"
         />
-</LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loadFightsProgress"
+        style="@style/Widget.AppCompat.Base.Spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/fight_list"
+        android:paddingTop="10dp"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        >
+    </ProgressBar>
+
+    <TextView
+        android:id="@+id/loadFightsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loadFightsProgress"
+        android:layout_centerInParent="true"
+        android:text="Loading fights..."
+        android:textColor="@color/gray"
+        android:visibility="invisible"
+        />
+</RelativeLayout>

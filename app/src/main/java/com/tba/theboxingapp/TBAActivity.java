@@ -101,15 +101,23 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        if (position == 1) {
+        if (position == 0) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, FightListFragment.newInstance(FightListFragment.ListType.FEATURED)).commit();
+            mTitle = "Featured";
+        }
+        else if (position == 1) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, FightListFragment.newInstance(FightListFragment.ListType.PAST)).commit();
+            mTitle = "Recent";
         }
         else if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlacesFragment.newInstance()).commit();
+            mTitle = "Places";
         } else {
             // update the main content by replacing fragments
             FragmentManager fragmentManager = getFragmentManager();
