@@ -39,6 +39,7 @@
         android:layout_below="@id/commentUserHandleTextView"
         android:layout_toRightOf="@id/commentUserImageView"
         android:paddingTop="2dp"
+        android:linksClickable="true"
         android:text="See the thing about that fight is etc etc etc some other stuff and etc shit"
         />
     <TextView

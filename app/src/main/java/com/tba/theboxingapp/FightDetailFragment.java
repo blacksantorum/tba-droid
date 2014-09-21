@@ -10,7 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,6 +34,8 @@ import org.json.JSONObject;
 import android.text.format.DateUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +50,9 @@ import java.util.List;
  *
  */
 public class FightDetailFragment extends Fragment {
+
+    public enum CommentMode { SHOW_TOP, SHOW_NEW};
+
     private static final String FIGHT_PARAM = "fight_param";
 
     private int mFightId;
@@ -60,12 +67,17 @@ public class FightDetailFragment extends Fragment {
     private ListView mCommentsListView;
     private CommentArrayAdapter mCommentArrayAdapter;
 
+    private LinearLayout mCommentsLayout;
+    private EditText mAddCommentEditText;
+    private TextView mChangeSortLabel;
+
     private ProgressBar mCommentsProgressBar;
     private TextView mCommentsLoadingTextView;
 
     private RequestQueue mRequestQueue;
 
     private List<Comment> mComments;
+    private CommentMode mCommentMode;
 
     private OnFragmentInteractionListener mListener;
 
@@ -78,7 +90,8 @@ public class FightDetailFragment extends Fragment {
         return fragment;
     }
     public FightDetailFragment() {
-         mComments = new ArrayList<Comment>();
+        mComments = new ArrayList<Comment>();
+        mCommentMode = CommentMode.SHOW_TOP;
     }
 
     @Override
@@ -110,6 +123,12 @@ public class FightDetailFragment extends Fragment {
             }
         }
 
+        if (mCommentMode == CommentMode.SHOW_TOP) {
+            Collections.sort(mComments, new LikesComparator());
+        } else {
+            Collections.sort(mComments, new DateComparator());
+        }
+
         Comment[] commentArray = new Comment[mComments.size()];
         for (int i = 0; i < mComments.size(); i ++) {
             commentArray[i] = mComments.get(i);
@@ -121,9 +140,14 @@ public class FightDetailFragment extends Fragment {
         }
         mCommentArrayAdapter.comments = commentArray;
         mCommentArrayAdapter.notifyDataSetChanged();
-        mCommentsListView.setVisibility(View.VISIBLE);
+        mCommentsLayout.setVisibility(View.VISIBLE);
         mCommentsProgressBar.setVisibility(View.INVISIBLE);
         mCommentsLoadingTextView.setVisibility(View.INVISIBLE);
+    }
+
+    public void showCommentPage()
+    {
+        Log.i("EditText","Edit text tapped!");
     }
 
     @Override
@@ -141,14 +165,42 @@ public class FightDetailFragment extends Fragment {
         mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
 
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
+        mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
+        mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCommentPage();
+            }
+        });
+        mCommentsLayout = (LinearLayout)v.findViewById(R.id.commentsLayout);
+
+        mChangeSortLabel = (TextView)v.findViewById(R.id.changeSortLabel);
+        mChangeSortLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleMode();
+            }
+        });
 
         fetchComments();
         return v;
     }
 
+    private void toggleMode() {
+        if (mCommentMode == CommentMode.SHOW_NEW) {
+            mCommentMode = CommentMode.SHOW_TOP;
+            mChangeSortLabel.setText("Show new");
+        }
+        else {
+            mCommentMode = CommentMode.SHOW_NEW;
+            mChangeSortLabel.setText("Show top");
+        }
+        fetchComments();
+    }
+
     private void fetchComments()
     {
-        mCommentsListView.setVisibility(View.INVISIBLE);
+        mCommentsLayout.setVisibility(View.INVISIBLE);
         mCommentsProgressBar.setVisibility(View.VISIBLE);
         mCommentsLoadingTextView.setVisibility(View.VISIBLE);
         mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
@@ -197,6 +249,20 @@ public class FightDetailFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    public class LikesComparator implements Comparator<Comment> {
+        @Override
+        public int compare(Comment o1, Comment o2) {
+            return o2.likes - o1.likes;
+        }
+    }
+
+    public class DateComparator implements Comparator<Comment> {
+        @Override
+        public int compare(Comment o1, Comment o2) {
+            return o1.createdAt.compareTo(o2.createdAt);
+        }
     }
 
     public class CommentArrayAdapter extends ArrayAdapter<Comment> {
