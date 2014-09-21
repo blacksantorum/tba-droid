@@ -61,7 +61,7 @@
         android:layout_below="@id/commentContentTextView"
         android:paddingLeft="5dp"
         android:paddingTop="2dp"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         />
     <TextView
         android:id="@+id/likesLabel"

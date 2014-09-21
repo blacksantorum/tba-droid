@@ -77,6 +77,28 @@
         </LinearLayout>
      </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/loadCommentsProgress"
+        style="@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fight_detail_overlay"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        >
+    </ProgressBar>
+
+    <TextView
+        android:id="@+id/loadCommentsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loadCommentsProgress"
+        android:layout_centerInParent="true"
+        android:text="Loading comments..."
+        android:textColor="@color/gray"
+        android:visibility="invisible"
+        />
+
     <ListView
         android:id="@+id/comments_list_view"
         android:layout_width="match_parent"

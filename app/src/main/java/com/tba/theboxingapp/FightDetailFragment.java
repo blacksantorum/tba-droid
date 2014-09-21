@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -59,6 +60,9 @@ public class FightDetailFragment extends Fragment {
     private ListView mCommentsListView;
     private CommentArrayAdapter mCommentArrayAdapter;
 
+    private ProgressBar mCommentsProgressBar;
+    private TextView mCommentsLoadingTextView;
+
     private RequestQueue mRequestQueue;
 
     private List<Comment> mComments;
@@ -85,18 +89,13 @@ public class FightDetailFragment extends Fragment {
 
             Log.i("fight_id", "Fight id " + mFightId);
             mRequestQueue = Volley.newRequestQueue(getActivity());
-            mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
+            /*mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject object) {
                     Log.i("fight",object.toString());
                 }
             },mFightId));
-            mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
-                   @Override
-                   public void onResponse(JSONArray object) {
-                       updateComments(object);
-                   }
-                },mFightId));
+            */
         }
     }
 
@@ -122,6 +121,9 @@ public class FightDetailFragment extends Fragment {
         }
         mCommentArrayAdapter.comments = commentArray;
         mCommentArrayAdapter.notifyDataSetChanged();
+        mCommentsListView.setVisibility(View.VISIBLE);
+        mCommentsProgressBar.setVisibility(View.INVISIBLE);
+        mCommentsLoadingTextView.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -135,8 +137,26 @@ public class FightDetailFragment extends Fragment {
         mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
         mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
 
+        mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
+        mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
+
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
+
+        fetchComments();
         return v;
+    }
+
+    private void fetchComments()
+    {
+        mCommentsListView.setVisibility(View.INVISIBLE);
+        mCommentsProgressBar.setVisibility(View.VISIBLE);
+        mCommentsLoadingTextView.setVisibility(View.VISIBLE);
+        mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray object) {
+                updateComments(object);
+            }
+        },mFightId));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -207,7 +227,7 @@ public class FightDetailFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Comment comment = comments[position];
+            final Comment comment = comments[position];
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
@@ -217,7 +237,7 @@ public class FightDetailFragment extends Fragment {
             TextView commentContentLabel = (TextView)v.findViewById(R.id.commentContentTextView);
             TextView timeAgoLabel = (TextView)v.findViewById(R.id.timeAgoLabel);
             ImageButton jabButton = (ImageButton)v.findViewById(R.id.jabButton);
-            TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
+            final TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
             TextView deleteButton = (TextView)v.findViewById(R.id.deleteButton);
 
             userImageView.setImageUrl(comment.user.profileImageUrl, getImageLoader());
@@ -230,6 +250,20 @@ public class FightDetailFragment extends Fragment {
             } else {
                 deleteButton.setVisibility(View.INVISIBLE);
             }
+
+            jabButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mRequestQueue.add(TBARequestFactory.LikeRequest(comment, new Response.Listener<String>() {
+                        // private final TextView likesLabelCopy = likesLabel;
+
+                        @Override
+                        public void onResponse(String string) {
+                            likesLabel.setText(new String("" + comment.likes + 1));
+                        }
+                    }));
+                }
+            });
 
             return v;
         }

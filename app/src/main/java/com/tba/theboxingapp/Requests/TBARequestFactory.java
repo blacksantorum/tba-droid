@@ -4,10 +4,13 @@ import android.location.GpsStatus;
 import android.net.sip.SipSession;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 
 import org.json.JSONArray;
@@ -21,6 +24,11 @@ import org.json.JSONObject;
 public class TBARequestFactory {
 
     private static final String BASE_URL = "http://www.theboxingapp.com/api/v1/";
+
+    private static String withSessionToken(String url)
+    {
+        return url + "?session_token=" + User.currentUser().sessionToken;
+    }
 
     private static JSONObject authObject()
     {
@@ -113,4 +121,15 @@ public class TBARequestFactory {
         });
     }
 
+    public static StringRequest LikeRequest(Comment comment, Response.Listener<String> listener)
+    {
+        String url = BASE_URL + "comments/" + comment.id + "/like";
+
+        return new StringRequest(withSessionToken(url),listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
 }
