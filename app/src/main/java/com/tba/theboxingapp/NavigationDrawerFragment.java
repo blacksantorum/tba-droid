@@ -20,7 +20,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tba.theboxingapp.Model.OptionItem;
@@ -100,15 +102,15 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+
+        OptionItem[] itemArray = new OptionItem[3];
+        itemArray[0] = new OptionItem("Featured", R.drawable.featured);
+        itemArray[1] = new OptionItem("Recent", R.drawable.recent);
+        itemArray[2] = new OptionItem("Places", R.drawable.places);
+
+        mDrawerListView.setBackgroundColor(getResources().getColor(R.color.black));
+        mDrawerListView.setAdapter(new MenuAdapter(getActivity(),itemArray));
+
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
@@ -287,6 +289,27 @@ public class NavigationDrawerFragment extends Fragment {
         private final Context context;
         private OptionItem[] items;
 
+        public MenuAdapter(Context context, OptionItem[] items) {
+            super(context, R.layout.nav_option_item, items );
+            this.items = items;
+            this.context = context;
+        }
 
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.nav_option_item, parent, false);
+
+            OptionItem item = items[position];
+
+            ImageView navOptionImageView = (ImageView)v.findViewById(R.id.navOptionImageView);
+            TextView navOptionTextView = (TextView)v.findViewById(R.id.navOptionTextView);
+
+            navOptionImageView.setImageResource(item.iconResource);
+            navOptionTextView.setText(item.title);
+
+            return v;
+        }
     }
 }
