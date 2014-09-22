@@ -165,6 +165,7 @@ public class FightDetailFragment extends Fragment {
         mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
 
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
+        mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
             @Override
