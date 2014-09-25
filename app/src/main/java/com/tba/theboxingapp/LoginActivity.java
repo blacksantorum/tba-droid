@@ -2,6 +2,7 @@ package com.tba.theboxingapp;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -39,11 +40,14 @@ import org.json.JSONTokener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements Response.Listener<JSONObject> {
 
     public static final String PREFS_NAME = "TBAPref";
 
@@ -78,6 +82,7 @@ public class LoginActivity extends Activity {
         mLoginButton.setEnabled(false);
         connect();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +153,6 @@ public class LoginActivity extends Activity {
 
     private void signInWithRails(JSONObject user)
     {
-
         final JSONObject finalUser = user;
 
         mProgressBar.setVisibility(View.VISIBLE);
@@ -174,6 +178,11 @@ public class LoginActivity extends Activity {
                 finish();
             }
         }));
+    }
+
+    @Override
+    public void onResponse(JSONObject response) {
+
     }
 
     private void connect()

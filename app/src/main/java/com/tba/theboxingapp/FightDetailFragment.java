@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -67,8 +68,11 @@ public class FightDetailFragment extends Fragment {
     private ListView mCommentsListView;
     private CommentArrayAdapter mCommentArrayAdapter;
 
-    private LinearLayout mCommentsLayout;
+    private RelativeLayout mCommentsLayout;
+    private NetworkImageView mCommentToolbarImageView;
     private EditText mAddCommentEditText;
+    private ImageButton mSendCommentButton;
+
     private TextView mChangeSortLabel;
 
     private ProgressBar mCommentsProgressBar;
@@ -164,8 +168,11 @@ public class FightDetailFragment extends Fragment {
         mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
         mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
 
+        mCommentToolbarImageView = (NetworkImageView)v.findViewById(R.id.commentToolbarUserImageView);
+        mSendCommentButton = (ImageButton)v.findViewById(R.id.sendCommentButton);
+
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
-        mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
+        //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +180,7 @@ public class FightDetailFragment extends Fragment {
                 showCommentPage();
             }
         });
-        mCommentsLayout = (LinearLayout)v.findViewById(R.id.commentsLayout);
+        mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
 
         mChangeSortLabel = (TextView)v.findViewById(R.id.changeSortLabel);
         mChangeSortLabel.setOnClickListener(new View.OnClickListener() {
@@ -251,6 +258,8 @@ public class FightDetailFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
+
 
     public class LikesComparator implements Comparator<Comment> {
         @Override

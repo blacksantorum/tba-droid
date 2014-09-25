@@ -6,4 +6,7 @@
     <color name="gray">#787878 </color>
     <color name="link_blue"> #0000FF</color>
     <color name="black"> #000000</color>
+    <color name="red"> #8B0000</color>
+    <color name="dark_gray">#4C4646</color>
+    <color name="dark_red"> #5B0000 </color>
 </resources>

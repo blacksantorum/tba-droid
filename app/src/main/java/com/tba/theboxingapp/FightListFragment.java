@@ -195,8 +195,13 @@ public class FightListFragment extends Fragment {
     }
 
     public class FightListAdapter extends BaseExpandableListAdapter {
+
         public List<Date> dates;
         public Map<Date,List<Fight>> fights;
+
+
+
+
         private Context mContext;
         private ImageLoader mImageLoader;
         private RequestQueue mRequestQueue;

@@ -22,10 +22,19 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.OptionItem;
+import com.tba.theboxingapp.Model.User;
+
+import org.w3c.dom.Text;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -56,12 +65,25 @@ public class NavigationDrawerFragment extends Fragment {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
+    private RelativeLayout mSlideoutProfileLayout;
+    private NetworkImageView mSlideoutProfileImageView;
+    private TextView mSlideoutProfileTextView;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+
+    private ImageLoader mImageLoader;
+    private RequestQueue mRequestQueue;
+
+    private ImageLoader getImageLoader() {
+        if (mImageLoader == null) {
+            mImageLoader = new ImageLoader(this.mRequestQueue, new LruBitmapCache());
+        }
+        return this.mImageLoader;
+    }
 
     public NavigationDrawerFragment() {
     }
@@ -94,8 +116,13 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mDrawerListView = (ListView) inflater.inflate(
+        mRequestQueue = Volley.newRequestQueue(getActivity());
+
+        View view = (View) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
+
+        mDrawerListView = (ListView)view.findViewById(R.id.optionsListView);
+
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -103,16 +130,22 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        OptionItem[] itemArray = new OptionItem[3];
-        itemArray[0] = new OptionItem("Featured", R.drawable.featured);
-        itemArray[1] = new OptionItem("Recent", R.drawable.recent);
-        itemArray[2] = new OptionItem("Places", R.drawable.places);
+        mSlideoutProfileLayout = (RelativeLayout)view.findViewById(R.id.slideoutProfileLayout);
+        mSlideoutProfileImageView = (NetworkImageView)view.findViewById(R.id.slideoutProfileImageView);
+        mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl,getImageLoader());
+        mSlideoutProfileTextView = (TextView)view.findViewById(R.id.slideoutProfileTextView);
+        mSlideoutProfileTextView.setText(User.currentUser().getName());
 
-        mDrawerListView.setBackgroundColor(getResources().getColor(R.color.black));
+        OptionItem[] itemArray = new OptionItem[3];
+        itemArray[0] = new OptionItem("Featured", "Upcoming and recent fights",R.drawable.featured);
+        itemArray[1] = new OptionItem("Past", "Past fights",R.drawable.recent);
+        itemArray[2] = new OptionItem("Places", "Places to watch boxing", R.drawable.places);
+
+        // mDrawerListView.setBackgroundColor(getResources().getColor(R.color.black));
         mDrawerListView.setAdapter(new MenuAdapter(getActivity(),itemArray));
 
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        return mDrawerListView;
+        return view;
     }
 
     public boolean isDrawerOpen() {
@@ -305,9 +338,11 @@ public class NavigationDrawerFragment extends Fragment {
 
             ImageView navOptionImageView = (ImageView)v.findViewById(R.id.navOptionImageView);
             TextView navOptionTextView = (TextView)v.findViewById(R.id.navOptionTextView);
+            TextView navOptionDescriptionTextView = (TextView)v.findViewById(R.id.navOptionDescriptionTextView);
 
             navOptionImageView.setImageResource(item.iconResource);
             navOptionTextView.setText(item.title);
+            navOptionDescriptionTextView.setText(item.subtitle);
 
             return v;
         }
