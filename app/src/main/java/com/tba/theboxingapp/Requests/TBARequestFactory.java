@@ -94,6 +94,28 @@ public class TBARequestFactory {
         });
     }
 
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, String comment)
+    {
+        String url = BASE_URL + "fights/" + fightId + "/comments";
+
+        JSONObject params = new JSONObject();
+
+        JSONObject commentObject = new JSONObject();
+        try {
+            commentObject.put("body", comment);
+            params.put("comment", commentObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
+
     public static JsonObjectRequest FightRequest(Response.Listener<JSONObject> listener, int fightId)
     {
         String url = BASE_URL + "fights/" + fightId + "?session_token=" + User.currentUser().sessionToken;

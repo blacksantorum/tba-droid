@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.tba.theboxingapp.FightDetailFragment"
+
     >
 
     <LinearLayout
@@ -105,6 +106,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/fight_detail_overlay"
+        android:layout_above="@+id/addCommentToolbar"
         android:background="@drawable/abc_menu_dropdown_panel_holo_light"
         >
         <RelativeLayout
@@ -165,44 +167,54 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/commentsHeader"
-            android:layout_above="@+id/addCommentToolbar"
         />
-        <RelativeLayout
-            android:id="@id/addCommentToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_alignParentBottom="true"
-            >
-            <com.android.volley.toolbox.NetworkImageView
-                android:id="@+id/commentToolbarUserImageView"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                />
-            <EditText
-                android:id="@+id/addACommentEditTextView"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:hint="Add a comment"
-                android:paddingTop="20dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_toRightOf="@id/commentToolbarUserImageView"
-                android:layout_toLeftOf="@+id/sendCommentButton"
-                android:focusable="true"
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@id/addCommentToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        >
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/commentToolbarUserImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             />
-            <ImageButton
-                android:id="@id/sendCommentButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/send"
-                android:layout_centerVertical="true"
-                android:tint="@color/dark_red"
-                android:layout_alignParentRight="true"
-                />
-        </RelativeLayout>
+        <EditText
+            android:id="@+id/addACommentEditTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add a comment"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="2dp"
+            android:layout_toLeftOf="@+id/sendCommentButton"
+            android:layout_toRightOf="@id/commentToolbarUserImageView"
+            android:focusable="true"
+            />
+        <!--
+        <View
+            android:id = "@id/commentSeparator"
+            android:layout_width="2dp"
+            android:layout_height="8dp"
+            android:background="?android:attr/dividerHorizontal"
+            />
+        -->
+        
+        <ImageButton
+            android:id="@id/sendCommentButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/send"
+            android:layout_centerVertical="true"
+            android:tint="@color/dark_red"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            />
     </RelativeLayout>
 
 </RelativeLayout>

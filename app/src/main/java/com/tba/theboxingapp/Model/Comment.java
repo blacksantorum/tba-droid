@@ -44,8 +44,9 @@ public class Comment extends BaseModel {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
             //this.createdAt = sdf.parse(createdAtDateString);
             this.createdAt = new Date();
-
-            prediction = new Prediction(object.getJSONObject("pick"));
+            if (!object.isNull("pick")) {
+                prediction = new Prediction(object.getJSONObject("pick"));
+            }
             user = new User(object.getJSONObject("user"));
         } catch (JSONException e) {
             e.printStackTrace();

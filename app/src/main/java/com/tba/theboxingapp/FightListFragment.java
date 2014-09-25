@@ -26,6 +26,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.Fight;
+import com.tba.theboxingapp.Networking.TBAVolley;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
 
 import org.json.JSONArray;
@@ -119,7 +120,7 @@ public class FightListFragment extends Fragment {
     {
         mFightListAdapter = new FightListAdapter(getActivity());
 
-        mRequestQueue = Volley.newRequestQueue(getActivity());
+        mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
 
         mExpandableListView.setVisibility(View.INVISIBLE);
         mLoadingFightsProgress.setVisibility(View.VISIBLE);
@@ -199,27 +200,7 @@ public class FightListFragment extends Fragment {
         public List<Date> dates;
         public Map<Date,List<Fight>> fights;
 
-
-
-
         private Context mContext;
-        private ImageLoader mImageLoader;
-        private RequestQueue mRequestQueue;
-
-        private RequestQueue getRequestQueue () {
-            if (mRequestQueue == null) {
-                mRequestQueue = Volley.newRequestQueue(mContext);
-            }
-            return mRequestQueue;
-        }
-
-        private ImageLoader getImageLoader() {
-            getRequestQueue();
-            if (mImageLoader == null) {
-                mImageLoader = new ImageLoader(this.mRequestQueue, new LruBitmapCache());
-            }
-            return this.mImageLoader;
-        }
 
         public FightListAdapter(Context context) {
             mContext = context;
@@ -277,12 +258,14 @@ public class FightListFragment extends Fragment {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.fight_list_child, viewGroup, false);
             NetworkImageView boxerAImageView = (NetworkImageView)rowView.findViewById(R.id.boxerAImageView);
-            boxerAImageView.setImageUrl(fight.boxerA.imgUrl, getImageLoader());
+            boxerAImageView.setImageUrl(fight.boxerA.imgUrl,
+                    TBAVolley.getInstance(getActivity()).getImageLoader());
 
             TextView boxerATextView = (TextView) rowView.findViewById(R.id.boxerATextView);
             boxerATextView.setText(fight.boxerA.fullName);
             NetworkImageView boxerBImageView = (NetworkImageView)rowView.findViewById(R.id.boxerBImageView);
-            boxerBImageView.setImageUrl(fight.boxerB.imgUrl, getImageLoader());
+            boxerBImageView.setImageUrl(fight.boxerB.imgUrl,
+                    TBAVolley.getInstance(getActivity()).getImageLoader());
             TextView boxerBTextView = (TextView) rowView.findViewById(R.id.boxerBTextView);
             boxerBTextView.setText(fight.boxerB.fullName);
 

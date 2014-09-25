@@ -27,6 +27,7 @@ import com.google.android.gms.internal.de;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Fight;
 import com.tba.theboxingapp.Model.User;
+import com.tba.theboxingapp.Networking.TBAVolley;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
 
 import org.json.JSONArray;
@@ -105,7 +106,7 @@ public class FightDetailFragment extends Fragment {
             this.mFightId = getArguments().getInt(FIGHT_PARAM);
 
             Log.i("fight_id", "Fight id " + mFightId);
-            mRequestQueue = Volley.newRequestQueue(getActivity());
+            mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
             /*mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject object) {
@@ -169,7 +170,25 @@ public class FightDetailFragment extends Fragment {
         mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
 
         mCommentToolbarImageView = (NetworkImageView)v.findViewById(R.id.commentToolbarUserImageView);
+        mCommentToolbarImageView.setImageUrl(User.currentUser().profileImageUrl,
+                TBAVolley.getInstance(getActivity()).getImageLoader());
+
         mSendCommentButton = (ImageButton)v.findViewById(R.id.sendCommentButton);
+        mSendCommentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mAddCommentEditText.getText().length() > 0) {
+                    TBAVolley.getInstance(getActivity()).getRequestQueue().add(
+                        TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject object) {
+                                fetchComments();
+                            }
+                        },mFightId,mAddCommentEditText.getText().toString())
+                    );
+                }
+            }
+        });
 
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
         //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
@@ -278,27 +297,10 @@ public class FightDetailFragment extends Fragment {
     public class CommentArrayAdapter extends ArrayAdapter<Comment> {
         private final Context context;
         public Comment[] comments;
-        private ImageLoader mImageLoader;
-        private RequestQueue mRequestQueue;
 
         public CommentArrayAdapter(Context context, Comment[] comments) {
             super(context, R.layout.fight_comment_detail, comments );
             this.context = context;
-        }
-
-        private RequestQueue getRequestQueue () {
-            if (mRequestQueue == null) {
-                mRequestQueue = Volley.newRequestQueue(context);
-            }
-            return mRequestQueue;
-        }
-
-        private ImageLoader getImageLoader() {
-            getRequestQueue();
-            if (mImageLoader == null) {
-                mImageLoader = new ImageLoader(this.mRequestQueue, new LruBitmapCache());
-            }
-            return this.mImageLoader;
         }
 
         @Override
@@ -316,7 +318,8 @@ public class FightDetailFragment extends Fragment {
             final TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
             TextView deleteButton = (TextView)v.findViewById(R.id.deleteButton);
 
-            userImageView.setImageUrl(comment.user.profileImageUrl, getImageLoader());
+            userImageView.setImageUrl(comment.user.profileImageUrl,
+                    TBAVolley.getInstance(getActivity().getApplicationContext()).getImageLoader());
             userHandleLabel.setText(comment.user.handle);
             commentContentLabel.setText(comment.body);
             timeAgoLabel.setText(prettyTimeAgo(comment.createdAt));
