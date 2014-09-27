@@ -24,6 +24,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.internal.de;
+import com.tba.theboxingapp.Model.Boxer;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Fight;
 import com.tba.theboxingapp.Model.User;
@@ -40,6 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Handler;
 
 
 /**
@@ -59,6 +61,9 @@ public class FightDetailFragment extends Fragment {
 
     private int mFightId;
     private Fight mFight;
+
+    private Handler mPercentageCountHandler;
+
     private TextView mBoxerAPercentageLabel;
     private TextView mBoxerANameLabel;
 
@@ -83,6 +88,9 @@ public class FightDetailFragment extends Fragment {
 
     private List<Comment> mComments;
     private CommentMode mCommentMode;
+
+    private int mBoxerAPickPercentage;
+    private int mBoxerBPickPercentage;
 
     private OnFragmentInteractionListener mListener;
 
@@ -163,7 +171,9 @@ public class FightDetailFragment extends Fragment {
         mBoxerANameLabel = (TextView)v.findViewById(R.id.boxerANameLabel);
         mBoxerBNameLabel = (TextView)v.findViewById(R.id.boxerBNameLabel);
         mBoxerAPercentageLabel = (TextView)v.findViewById(R.id.boxerAPickPercentageLabel);
+        mBoxerAPercentageLabel.setText("0");
         mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
+        mBoxerBPercentageLabel.setText("0");
         mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
 
         mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
@@ -209,9 +219,93 @@ public class FightDetailFragment extends Fragment {
             }
         });
 
+        fetchFight();
         fetchComments();
         return v;
     }
+
+    private void updatePickPercentages() {
+        Thread th = new Thread(new Runnable() {
+            int i = 0;
+            public void run() {
+                while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage)) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (i <= mBoxerAPickPercentage) {
+                                mBoxerAPercentageLabel.setText(i+"%");
+                            }
+                            if(i <= mBoxerBPickPercentage) {
+                                mBoxerBPercentageLabel.setText(i+"%");
+                            }
+                        }
+                    });
+                    i++;
+                    try {
+                        Thread.sleep(25);
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        th.start();
+    }
+
+    private void fetchFight()
+    {
+        mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject object) {
+                Log.i("fight",object.toString());
+                try {
+                    JSONObject fightObject = object.getJSONObject("fight");
+                    mFight = new Fight(fightObject);
+                    mBoxerANameLabel.setText(mFight.boxerA.fullName);
+                    mBoxerBNameLabel.setText(mFight.boxerB.fullName);
+                    mWeightClassLabel.setText(mFight.weightClass);
+                    JSONArray boxerArray = object.getJSONObject("fight").getJSONArray("boxers");
+                    for (int i = 0; i < boxerArray.length() ; i++ ) {
+                        JSONObject boxerObject = boxerArray.getJSONObject(i);
+                        Boxer b = new Boxer(boxerObject);
+                        if (b.equals(mFight.boxerA)) {
+                            mBoxerAPickPercentage = boxerObject.getInt("percent_pick");
+                        }
+                        else if (b.equals(mFight.boxerB)) {
+                            mBoxerBPickPercentage = boxerObject.getInt("percent_pick");
+                        }
+                    }
+                    Log.i("percentageA", "" + mBoxerAPickPercentage);
+                    Log.i("percentageB", "" + mBoxerBPickPercentage);
+                    updatePickPercentages();
+                    /*
+                    int i = 0;
+
+                    while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage)) {
+                        if (i <= mBoxerAPickPercentage) {
+                            mBoxerAPercentageLabel.setText(i+"%");
+                        }
+                        if(i <= mBoxerBPickPercentage) {
+                            mBoxerBPercentageLabel.setText(i+"%");
+                        }
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        i++;
+                    }
+                    */
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        },mFightId));
+    }
+
+
 
     private void toggleMode() {
         if (mCommentMode == CommentMode.SHOW_NEW) {
