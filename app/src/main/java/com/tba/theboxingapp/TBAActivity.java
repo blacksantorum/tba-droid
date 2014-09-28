@@ -36,7 +36,7 @@ import com.parse.PushService;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        FightListFragment.OnFragmentInteractionListener, FightDetailFragment.OnFragmentInteractionListener  {
+        FightListFragment.OnFragmentInteractionListener, FightDetailFragment.OnFragmentInteractionListener, UserDetailFragment.OnFragmentInteractionListener  {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -110,6 +110,11 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlacesFragment.newInstance()).commit();
             mTitle = "Places";
+        } else if (position == 3) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, UserDetailFragment.newInstance()).commit();
+            mTitle = "Chris Tibbs";
         } else {
             // update the main content by replacing fragments
             FragmentManager fragmentManager = getFragmentManager();

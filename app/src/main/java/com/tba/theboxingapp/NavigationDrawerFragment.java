@@ -131,6 +131,13 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         mSlideoutProfileLayout = (RelativeLayout)view.findViewById(R.id.slideoutProfileLayout);
+        mSlideoutProfileLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectItem(3);
+            }
+        });
+
         mSlideoutProfileImageView = (NetworkImageView)view.findViewById(R.id.slideoutProfileImageView);
         mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl,getImageLoader());
         mSlideoutProfileTextView = (TextView)view.findViewById(R.id.slideoutProfileTextView);

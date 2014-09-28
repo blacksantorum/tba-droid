@@ -35,6 +35,12 @@ public class Fight extends BaseModel {
             this.id = object.getInt("id");
             this.location = object.getString("location");
 
+            if (object.has("weight")) {
+                if (!object.isNull("weight")) {
+                    this.weightClass = object.getString("weight");
+                }
+            }
+
             String dateString = object.getString("date");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             this.date = sdf.parse(dateString);
