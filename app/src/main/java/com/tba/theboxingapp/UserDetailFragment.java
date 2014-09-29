@@ -1,13 +1,37 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.NetworkImageView;
+import com.tba.theboxingapp.Model.Comment;
+import com.tba.theboxingapp.Model.Prediction;
+import com.tba.theboxingapp.Model.User;
+import com.tba.theboxingapp.Model.UserActivityComment;
+import com.tba.theboxingapp.Model.UserActivityPrediction;
+import com.tba.theboxingapp.Networking.TBAVolley;
+import com.tba.theboxingapp.Requests.TBARequestFactory;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.Date;
 
 
 /**
@@ -23,11 +47,33 @@ public class UserDetailFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_ID_PARAM = "user_id_param";
+    private static final String USER_FULL_NAME_PARAM = "user_name_param";
+    private static final String USER_PROFILE_URL_PARAM = "user_profile_url_param";
 
     // TODO: Rename and change types of parameters
     private int mUserId;
+    private String mUserFullName;
+    private String mUserProfileUrl;
+
+    private NetworkImageView mUserProfileImageView;
+    private TextView mUserProfileNameTextView;
+    private Button mUserPicksButton;
+    private Button mUserCommentsButton;
+    private ListView mUserActivityListView;
+
+    private RequestQueue mRequestQueue;
+
+    private ProgressBar mLoadActivityProgressBar;
+    private TextView mLoadActivityTextView;
+
+    private UserDetailCommentsAdapter mCommentsAdapter;
+    private UserDetailPicksAdapter mPicksAdapter;
+
+    private DisplayedActivity mDisplayedActivity;
 
     private OnFragmentInteractionListener mListener;
+
+    private enum DisplayedActivity { DISPLAY_PICKS, DISPLAY_COMMENTS };
 
     /**
      * Use this factory method to create a new instance of
@@ -38,11 +84,12 @@ public class UserDetailFragment extends Fragment {
      * @return A new instance of fragment UserDetailFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static UserDetailFragment newInstance() {
+    public static UserDetailFragment newInstance(int userId, String fullName, String profileUrl) {
         UserDetailFragment fragment = new UserDetailFragment();
         Bundle args = new Bundle();
-        // args.putString(ARG_PARAM1, param1);
-        // args.putString(ARG_PARAM2, param2);
+        args.putInt(USER_ID_PARAM, userId);
+        args.putString(USER_FULL_NAME_PARAM, fullName);
+        args.putString(USER_PROFILE_URL_PARAM, profileUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,7 +101,9 @@ public class UserDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            // mParam1 = getArguments().getString(ARG_PARAM1);
+            mUserId = getArguments().getInt(USER_ID_PARAM);
+            mUserFullName = getArguments().getString(USER_FULL_NAME_PARAM);
+            mUserProfileUrl = getArguments().getString(USER_PROFILE_URL_PARAM);
         }
     }
 
@@ -62,7 +111,110 @@ public class UserDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user_detail, container, false);
+        View v = inflater.inflate(R.layout.fragment_user_detail, container, false);
+
+        mUserProfileImageView = (NetworkImageView)v.findViewById(R.id.profileScreenImageView);
+        mUserProfileImageView.setImageUrl(mUserProfileUrl, TBAVolley.getInstance(getActivity()).getImageLoader());
+        mUserProfileNameTextView = (TextView)v.findViewById(R.id.profileScreenNameLabel);
+        mUserProfileNameTextView.setText(mUserFullName);
+
+        mUserCommentsButton = (Button)v.findViewById(R.id.userCommentsButton);
+        mUserCommentsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadComments();
+            }
+        });
+
+        mUserPicksButton = (Button)v.findViewById(R.id.userPicksButton);
+        mUserPicksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadPicks();
+            }
+        });
+
+        mLoadActivityProgressBar = (ProgressBar)v.findViewById(R.id.loadActivityProgress);
+        mLoadActivityTextView = (TextView)v.findViewById(R.id.loadActivityTextView);
+
+        mUserActivityListView = (ListView)v.findViewById(R.id.userActivityListView);
+        mUserActivityListView.setVisibility(View.INVISIBLE);
+
+        loadPicks();
+
+        return v;
+    }
+
+    private void loadPicks()
+    {
+        mUserActivityListView.setVisibility(View.INVISIBLE);
+        mLoadActivityProgressBar.setVisibility(View.VISIBLE);
+        mLoadActivityTextView.setText("Loading picks...");
+        mLoadActivityTextView.setVisibility(View.VISIBLE);
+        mDisplayedActivity = DisplayedActivity.DISPLAY_PICKS;
+        mRequestQueue.add(TBARequestFactory.UserPicksRequest(new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray array) {
+                Log.i("UserDetailPicks",array.toString());
+                UserActivityPrediction[] predictions = new UserActivityPrediction[array.length()];
+
+                for (int i = 0; i < array.length(); i++) {
+                    try {
+                        predictions[i] = new UserActivityPrediction(array.getJSONObject(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (mPicksAdapter == null) {
+                    mPicksAdapter = new UserDetailPicksAdapter(getActivity(),predictions);
+                } else {
+                    mPicksAdapter.picks = predictions;
+                }
+                mUserActivityListView.setAdapter(mPicksAdapter);
+                mPicksAdapter.notifyDataSetChanged();
+                mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
+                mLoadActivityTextView.setVisibility(View.INVISIBLE);
+                mUserActivityListView.setVisibility(View.VISIBLE);
+            }
+        },mUserId));
+    }
+
+    private void loadComments()
+    {
+        mDisplayedActivity = DisplayedActivity.DISPLAY_COMMENTS;
+
+        mUserActivityListView.setVisibility(View.INVISIBLE);
+        mLoadActivityProgressBar.setVisibility(View.VISIBLE);
+        mLoadActivityTextView.setText("Loading comments...");
+        mLoadActivityTextView.setVisibility(View.VISIBLE);
+
+        mRequestQueue.add(TBARequestFactory.UserCommentsRequest(new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray array) {
+                Log.i("UserDetailComments", array.toString());
+                UserActivityComment[] comments = new UserActivityComment[array.length()];
+                /*
+                for (int i = 0; i < array.length(); i++) {
+                    try {
+                        predictions[i] = new UserActivityPrediction(array.getJSONObject(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                */
+                if (mCommentsAdapter == null) {
+                    mCommentsAdapter = new UserDetailCommentsAdapter(getActivity(), comments);
+                } else {
+                    mCommentsAdapter.comments = comments;
+                }
+                mUserActivityListView.setAdapter(mCommentsAdapter);
+                mCommentsAdapter.notifyDataSetChanged();
+                mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
+                mLoadActivityTextView.setVisibility(View.INVISIBLE);
+                mUserActivityListView.setVisibility(View.VISIBLE);
+            }
+        }, mUserId));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -75,6 +227,7 @@ public class UserDetailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -102,6 +255,84 @@ public class UserDetailFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    public class UserDetailPicksAdapter extends ArrayAdapter<UserActivityPrediction> {
+        private final Context context;
+        public UserActivityPrediction[] picks;
+
+        public UserDetailPicksAdapter(Context context, UserActivityPrediction[] picks) {
+            super(context, R.layout.user_detail_picks_detail, picks);
+            this.picks = picks;
+            this.context = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            UserActivityPrediction prediction = picks[position];
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.user_detail_picks_detail, parent, false);
+            NetworkImageView boxerImageView = (NetworkImageView)v.findViewById(R.id.userPredictionBoxerImageView);
+            boxerImageView.setImageUrl(prediction.getBoxerImageUrl(),TBAVolley.getInstance(getActivity()).getImageLoader());
+
+            TextView predictionTextView = (TextView)v.findViewById(R.id.userPredictionTextView);
+            predictionTextView.setText(prediction.getContent());
+
+            TextView predictionDateTextView = (TextView)v.findViewById(R.id.userPredictionTimestampLabel);
+            predictionDateTextView.setText(prettyTimeAgo(prediction.createdAt));
+
+            return v;
+        }
+
+        private CharSequence prettyTimeAgo(Date date)
+        {
+            Date currentDate = new Date();
+            long currentDateLong = currentDate.getTime();
+            long oldDate = date.getTime();
+
+            return DateUtils
+                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+        }
+    }
+
+    public class UserDetailCommentsAdapter extends ArrayAdapter<UserActivityComment> {
+        private final Context context;
+        public UserActivityComment[] comments;
+
+        public UserDetailCommentsAdapter(Context context, UserActivityComment[] comments) {
+            super(context, R.layout.user_detail_comments_detail, comments);
+            this.comments = comments;
+            this.context = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            UserActivityComment prediction = comments[position];
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.user_detail_comments_detail, parent, false);
+            TextView fightTitleTextView = (TextView)v.findViewById(R.id.userDetailCommentFightTitleTextView);
+            fightTitleTextView.setText(prediction.getFightTitle());
+
+            TextView contentTextView = (TextView)v.findViewById(R.id.userDetailCommentContentTextView);
+            contentTextView.setText(prediction.getContent());
+
+            TextView commentDateTextView = (TextView)v.findViewById(R.id.userDetailCommentTimestampLabel);
+            commentDateTextView.setText(prettyTimeAgo(prediction.createdAt));
+
+            return v;
+        }
+
+        private CharSequence prettyTimeAgo(Date date)
+        {
+            Date currentDate = new Date();
+            long currentDateLong = currentDate.getTime();
+            long oldDate = date.getTime();
+
+            return DateUtils
+                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+        }
     }
 
 }

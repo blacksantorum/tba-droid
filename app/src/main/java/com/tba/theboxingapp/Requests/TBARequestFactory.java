@@ -154,4 +154,28 @@ public class TBARequestFactory {
             }
         });
     }
+
+    public static JsonArrayRequest UserCommentsRequest(Response.Listener<JSONArray> listener,
+                                                   int userId) {
+        String url = BASE_URL + "users/" + userId + "/comments";
+
+        return new JsonArrayRequest(withSessionToken(url),listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
+
+    public static JsonArrayRequest UserPicksRequest(Response.Listener<JSONArray> listener,
+                                                       int userId) {
+        String url = BASE_URL + "users/" + userId + "/picks";
+
+        return new JsonArrayRequest(withSessionToken(url),listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
 }

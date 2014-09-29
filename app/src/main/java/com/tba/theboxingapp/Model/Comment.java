@@ -41,7 +41,7 @@ public class Comment extends BaseModel {
             likes = object.getInt("likes");
 
             String createdAtDateString = object.getString("created_at");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             //this.createdAt = sdf.parse(createdAtDateString);
             this.createdAt = new Date();
             if (!object.isNull("pick")) {

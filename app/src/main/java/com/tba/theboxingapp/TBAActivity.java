@@ -33,6 +33,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
+import com.tba.theboxingapp.Model.User;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -113,8 +114,10 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         } else if (position == 3) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, UserDetailFragment.newInstance()).commit();
-            mTitle = "Chris Tibbs";
+                    .replace(R.id.container,
+                            UserDetailFragment.newInstance(User.currentUser().id,
+                                    User.currentUser().name, User.currentUser().profileImageUrl)).commit();
+            mTitle = User.currentUser().getName();
         } else {
             // update the main content by replacing fragments
             FragmentManager fragmentManager = getFragmentManager();

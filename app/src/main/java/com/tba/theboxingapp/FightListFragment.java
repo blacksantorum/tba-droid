@@ -161,7 +161,8 @@ public class FightListFragment extends Fragment {
                                                                     Fight fight = mFightListAdapter.fights.get(date).get(childPosition);
                                                                     FragmentManager fragmentManager = getFragmentManager();
                                                                     fragmentManager.beginTransaction()
-                                                                            .replace(R.id.container, FightDetailFragment.newInstance(fight)).commit();
+                                                                            .replace(R.id.container, FightDetailFragment.newInstance(fight)).
+                                                                            addToBackStack(null).commit();
 
                                                                     return true;
                                                                 }

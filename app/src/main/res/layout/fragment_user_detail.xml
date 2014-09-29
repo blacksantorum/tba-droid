@@ -14,22 +14,23 @@
         android:background="@android:color/darker_gray"
         >
         <FrameLayout
-            android:paddingTop="30dp"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:background="@color/white"
             android:layout_gravity="center_horizontal"
             >
 
             <com.android.volley.toolbox.NetworkImageView
+                android:id="@+id/profileScreenImageView"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:background="@color/gray"
                 android:layout_gravity="center"
                 />
 
             </FrameLayout>
         <TextView
+            android:id="@+id/profileScreenNameLabel"
             android:paddingTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,20 +38,6 @@
             android:textColor="@android:color/white"
             android:layout_gravity="center_horizontal"
             />
-
-        <TextView
-            android:paddingTop="10dp"
-            android:textAlignment="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="I'm the kind of guy who has a war going on in his mind at most, if not all times"
-            android:textColor="@android:color/white"
-            android:layout_gravity="center_horizontal"
-            android:linksClickable="true"
-            android:autoLink="web"
-            />
-
-
 
         </LinearLayout>
         <LinearLayout
@@ -92,12 +79,12 @@
         </ProgressBar>
 
         <TextView
-        android:id="@+id/loadCommentsTextView"
+        android:id="@+id/loadActivityTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/loadActivityProgress"
         android:layout_centerInParent="true"
-        android:text="Loading comments..."
+        android:text="Loading picks..."
         android:textColor="@color/gray"
         android:visibility="invisible"
         />

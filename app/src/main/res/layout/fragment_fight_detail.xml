@@ -86,6 +86,7 @@
         android:layout_below="@id/fight_detail_overlay"
         android:layout_centerInParent="true"
         android:visibility="invisible"
+        android:paddingTop="20dp"
         >
     </ProgressBar>
 
