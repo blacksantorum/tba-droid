@@ -194,15 +194,15 @@ public class UserDetailFragment extends Fragment {
             public void onResponse(JSONArray array) {
                 Log.i("UserDetailComments", array.toString());
                 UserActivityComment[] comments = new UserActivityComment[array.length()];
-                /*
+
                 for (int i = 0; i < array.length(); i++) {
                     try {
-                        predictions[i] = new UserActivityPrediction(array.getJSONObject(i));
+                        comments[i] = new UserActivityComment(array.getJSONObject(i));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-                */
+
                 if (mCommentsAdapter == null) {
                     mCommentsAdapter = new UserDetailCommentsAdapter(getActivity(), comments);
                 } else {

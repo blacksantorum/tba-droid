@@ -1,6 +1,7 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -201,6 +203,20 @@ public class FightDetailFragment extends Fragment {
         });
 
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
+        mCommentsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.i("Comments","Clicked");
+                Comment comment = mCommentArrayAdapter.comments[i];
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, UserDetailFragment.newInstance(comment.user.id, comment.user.name, comment.user.profileImageUrl)).
+                        addToBackStack(null).commit();
+            }
+        });
+
+
         //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {

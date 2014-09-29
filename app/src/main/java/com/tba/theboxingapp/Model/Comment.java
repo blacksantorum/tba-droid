@@ -41,18 +41,19 @@ public class Comment extends BaseModel {
             likes = object.getInt("likes");
 
             String createdAtDateString = object.getString("created_at");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            //this.createdAt = sdf.parse(createdAtDateString);
-            this.createdAt = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            this.createdAt = sdf.parse(createdAtDateString);
+
             if (!object.isNull("pick")) {
                 prediction = new Prediction(object.getJSONObject("pick"));
             }
             user = new User(object.getJSONObject("user"));
         } catch (JSONException e) {
             e.printStackTrace();
-        } /*catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     //<editor-fold desc="Accessors">

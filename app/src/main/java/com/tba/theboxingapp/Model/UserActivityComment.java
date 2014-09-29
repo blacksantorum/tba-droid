@@ -1,6 +1,10 @@
 package com.tba.theboxingapp.Model;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by christibbs on 9/28/14.
@@ -27,6 +31,18 @@ public class UserActivityComment extends BaseModel {
 
     public UserActivityComment (JSONObject object)
     {
-
+        try {
+            this.content = object.getString("body");
+            this.fightTitle = object.getString("fight_name");
+            String createdAtDateString = object.getString("created_at");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            try {
+                this.createdAt = sdf.parse(createdAtDateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
