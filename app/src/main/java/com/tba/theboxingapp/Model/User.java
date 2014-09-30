@@ -19,6 +19,11 @@ public class User extends BaseModel {
 
     private static User current;
 
+    public static void clear()
+    {
+        current = null;
+    }
+
     private User() {
 
     }

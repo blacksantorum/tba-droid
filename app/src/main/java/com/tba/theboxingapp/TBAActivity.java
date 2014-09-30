@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,10 +58,13 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showLogin();
+    }
 
+    private void showLogin()
+    {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 1);
-
     }
 
     private void setUpDrawer()
@@ -168,7 +172,16 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_log_out) {
+            User.clear();
+
+            SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove("User");
+            editor.commit();
+
+            showLogin();
+
             return true;
         }
         return super.onOptionsItemSelected(item);
