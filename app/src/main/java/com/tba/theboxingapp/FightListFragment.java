@@ -5,6 +5,7 @@ import android.app.ExpandableListActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
@@ -18,6 +19,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -255,20 +257,59 @@ public class FightListFragment extends Fragment {
 
         @Override
         public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-            Fight fight = fights.get(dates.get(i)).get(i1);
+            final Fight fight = fights.get(dates.get(i)).get(i1);
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.fight_list_child, viewGroup, false);
             NetworkImageView boxerAImageView = (NetworkImageView)rowView.findViewById(R.id.boxerAImageView);
             boxerAImageView.setImageUrl(fight.boxerA.imgUrl,
                     TBAVolley.getInstance(getActivity()).getImageLoader());
 
-            TextView boxerATextView = (TextView) rowView.findViewById(R.id.boxerATextView);
+            final TextView boxerATextView = (TextView) rowView.findViewById(R.id.boxerATextView);
             boxerATextView.setText(fight.boxerA.fullName);
             NetworkImageView boxerBImageView = (NetworkImageView)rowView.findViewById(R.id.boxerBImageView);
             boxerBImageView.setImageUrl(fight.boxerB.imgUrl,
                     TBAVolley.getInstance(getActivity()).getImageLoader());
-            TextView boxerBTextView = (TextView) rowView.findViewById(R.id.boxerBTextView);
+            final TextView boxerBTextView = (TextView) rowView.findViewById(R.id.boxerBTextView);
             boxerBTextView.setText(fight.boxerB.fullName);
+
+            SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
+            pickBar.setProgress(50);
+            pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(final SeekBar seekBar, int i, boolean b) {
+                    if (i == 0) {
+                        seekBar.setEnabled(false);
+                        mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerA.id, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject object) {
+                                boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
+                                seekBar.setEnabled(true);
+                            }
+                        }));
+                    }
+
+                    if (i == 100) {
+                        seekBar.setEnabled(false);
+                        mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerB.id, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject object) {
+                                boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                                seekBar.setEnabled(true);
+                            }
+                        }));
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
 
             return rowView;
         }

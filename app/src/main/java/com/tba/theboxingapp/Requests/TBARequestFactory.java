@@ -155,6 +155,28 @@ public class TBARequestFactory {
         });
     }
 
+    public static JsonObjectRequest PickFightRequest(int fightId, int winnerId, Response.Listener<JSONObject> listener)
+    {
+        String url = BASE_URL + "fights/" + fightId + "/picks";
+
+        JSONObject params = new JSONObject();
+        JSONObject pick = new JSONObject();
+        try {
+            pick.put("winner_id", "" + fightId);
+            pick.put("ko", "false");
+            params.put("pick", pick);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new JsonObjectRequest(withSessionToken(url),params,listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", "Response is: " + error.toString());
+            }
+        });
+    }
+
     public static JsonArrayRequest UserCommentsRequest(Response.Listener<JSONArray> listener,
                                                    int userId) {
         String url = BASE_URL + "users/" + userId + "/comments";

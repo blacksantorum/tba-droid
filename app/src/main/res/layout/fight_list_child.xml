@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    android:id="@+id/fightListDetail"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="140dp"
+    android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     android:paddingLeft="10dp"
@@ -17,8 +22,8 @@
         >
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/boxerAImageView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center"
             />
         <TextView
@@ -47,8 +52,8 @@
         android:layout_weight="1">
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/boxerBImageView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center"
             />
         <TextView
@@ -59,3 +64,12 @@
             />
     </LinearLayout>
 </LinearLayout>
+<SeekBar
+    android:id="@+id/pickBar"
+    android:layout_width="150dp"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/fightListDetail"
+    android:layout_centerInParent="true"
+    android:max="100"
+    />
+</RelativeLayout>
