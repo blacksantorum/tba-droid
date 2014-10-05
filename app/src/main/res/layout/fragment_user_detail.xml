@@ -41,18 +41,26 @@
             />
 
         </LinearLayout>
+    <View
+        android:id="@+id/userTopSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:layout_below="@id/userProfileHeader"
+        android:background="@android:color/white"
+        />
+
         <LinearLayout
             android:id="@+id/userProfileButtons"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/userProfileHeader"
-            android:background="@android:color/white"
+            android:layout_below="@id/userTopSeparator"
             >
             <Button
                 android:id="@+id/userPicksButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:text="Picks"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
@@ -60,12 +68,13 @@
             <View
                 android:layout_width="1dip"
                 android:layout_height="match_parent"
-                android:background="@android:color/darker_gray"
+                android:background="@android:color/white"
             />
             <Button
                 android:id="@+id/userCommentsButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:text="Comments"
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
@@ -77,7 +86,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dip"
         android:layout_below="@id/userProfileButtons"
-        android:background="@android:color/darker_gray"
+        android:background="@android:color/white"
         />
 
         <ProgressBar

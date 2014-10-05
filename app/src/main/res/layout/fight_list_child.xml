@@ -42,7 +42,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="VS"
-        android:gravity = "center"
+        android:gravity = "center_horizontal"
         >
     </TextView>
 
@@ -72,5 +72,6 @@
     android:layout_below="@id/fightListDetail"
     android:layout_centerInParent="true"
     android:max="100"
+    android:visibility="invisible"
     />
 </RelativeLayout>

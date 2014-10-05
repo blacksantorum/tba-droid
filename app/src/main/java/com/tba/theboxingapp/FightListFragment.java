@@ -272,6 +272,15 @@ public class FightListFragment extends Fragment {
             final TextView boxerBTextView = (TextView) rowView.findViewById(R.id.boxerBTextView);
             boxerBTextView.setText(fight.boxerB.fullName);
 
+            TextView resultTextView = (TextView)rowView.findViewById(R.id.resultTextView);
+            if (fight.state == Fight.State.PAST) {
+                if (fight.stoppage) {
+                    resultTextView.setText("KO");
+                } else {
+                    resultTextView.setText("def");
+                }
+            }
+
             SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
             pickBar.setProgress(50);
             pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
