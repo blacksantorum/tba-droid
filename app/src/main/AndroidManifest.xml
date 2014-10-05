@@ -35,7 +35,9 @@
 
         <activity
             android:name=".TBAActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="sensorPortrait"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -65,6 +67,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
+            android:screenOrientation="sensorPortrait"
             >
         </activity>
         <meta-data

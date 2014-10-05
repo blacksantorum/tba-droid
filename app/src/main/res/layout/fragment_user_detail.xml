@@ -2,7 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tba.theboxingapp.UserDetailFragment">
+    tools:context="com.tba.theboxingapp.UserDetailFragment"
+    android:background="@drawable/blur"
+    >
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
@@ -10,8 +12,7 @@
         android:padding="20dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
+        android:layout_height="140dip"
         >
         <FrameLayout
 
@@ -46,6 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/userProfileHeader"
+            android:background="@android:color/white"
             >
             <Button
                 android:id="@+id/userPicksButton"
@@ -55,6 +57,11 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 />
+            <View
+                android:layout_width="1dip"
+                android:layout_height="match_parent"
+                android:background="@android:color/darker_gray"
+            />
             <Button
                 android:id="@+id/userCommentsButton"
                 android:layout_width="0dp"
@@ -65,6 +72,13 @@
                 />
             </LinearLayout>
 
+    <View
+        android:id="@+id/userSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:layout_below="@id/userProfileButtons"
+        android:background="@android:color/darker_gray"
+        />
 
         <ProgressBar
         android:id="@+id/loadActivityProgress"
@@ -95,7 +109,8 @@
             android:id="@+id/userActivityListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/userProfileButtons"
+            android:layout_below="@id/userSeparator"
+            android:background="@android:color/white"
             >
 
             </ListView>
