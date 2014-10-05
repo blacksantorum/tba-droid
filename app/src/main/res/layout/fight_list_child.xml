@@ -65,6 +65,15 @@
             />
     </LinearLayout>
 </LinearLayout>
+<Button
+    android:id="@+id/pickButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/fightListDetail"
+    android:layout_centerInParent="true"
+    android:text="Pick"
+    android:background="?android:attr/selectableItemBackground"
+    />
 <SeekBar
     android:id="@+id/pickBar"
     android:layout_width="150dp"

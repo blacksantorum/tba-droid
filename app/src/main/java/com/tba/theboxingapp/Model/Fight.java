@@ -35,6 +35,12 @@ public class Fight extends BaseModel {
             this.id = object.getInt("id");
             this.location = object.getString("location");
 
+            if (object.has("users_pick")) {
+                if (!object.isNull("users_pick")) {
+                    this.currentUserPickedWinnerId = object.getInt("users_pick");
+                }
+            }
+
             if (object.has("weight")) {
                 if (!object.isNull("weight")) {
                     this.weightClass = object.getString("weight");

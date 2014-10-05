@@ -58,6 +58,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setUpDrawer();
         showLogin();
     }
 
@@ -87,7 +88,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             if(resultCode == RESULT_OK){
                 if (data.getBooleanExtra("login", false)) {
                     Log.i("Result","User logged in");
-                    setUpDrawer();
+                    mNavigationDrawerFragment.selectItem(0);
                 }
             }
             if (resultCode == RESULT_CANCELED) {

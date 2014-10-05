@@ -282,7 +282,16 @@ public class FightListFragment extends Fragment {
             }
 
             SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
-            pickBar.setProgress(50);
+            if (fight.currentUserPickedWinnerId == fight.boxerA.id) {
+                pickBar.setProgress(0);
+            }
+            else if (fight.currentUserPickedWinnerId == fight.boxerB.id) {
+                pickBar.setProgress(100);
+            }
+            else {
+                pickBar.setProgress(50);
+            }
+
             pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(final SeekBar seekBar, int i, boolean b) {
