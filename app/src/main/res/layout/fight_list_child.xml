@@ -71,7 +71,10 @@
     android:layout_height="wrap_content"
     android:layout_below="@id/fightListDetail"
     android:layout_centerInParent="true"
-    android:text="Pick"
+    android:textColor="@color/dark_red"
+    android:textSize="14sp"
+    android:text="Pick this fight!"
+    android:focusable="false"
     android:background="?android:attr/selectableItemBackground"
     />
 <SeekBar

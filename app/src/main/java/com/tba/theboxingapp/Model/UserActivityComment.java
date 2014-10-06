@@ -5,6 +5,8 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Created by christibbs on 9/28/14.
@@ -36,6 +38,7 @@ public class UserActivityComment extends BaseModel {
             this.fightTitle = object.getString("fight_name");
             String createdAtDateString = object.getString("created_at");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
             try {
                 this.createdAt = sdf.parse(createdAtDateString);
             } catch (ParseException e) {

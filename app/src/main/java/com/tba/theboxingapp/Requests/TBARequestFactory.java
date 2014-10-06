@@ -162,7 +162,7 @@ public class TBARequestFactory {
         JSONObject params = new JSONObject();
         JSONObject pick = new JSONObject();
         try {
-            pick.put("winner_id", "" + fightId);
+            pick.put("winner_id", "" + winnerId);
             pick.put("ko", "false");
             params.put("pick", pick);
         } catch (JSONException e) {

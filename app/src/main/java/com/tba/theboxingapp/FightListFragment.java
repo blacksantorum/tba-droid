@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -281,16 +282,31 @@ public class FightListFragment extends Fragment {
                 }
             }
 
-            SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
+            final SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
             if (fight.currentUserPickedWinnerId == fight.boxerA.id) {
                 pickBar.setProgress(0);
+                boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
+                boxerBTextView.setTypeface(Typeface.DEFAULT);
             }
             else if (fight.currentUserPickedWinnerId == fight.boxerB.id) {
                 pickBar.setProgress(100);
+                boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                boxerATextView.setTypeface(Typeface.DEFAULT);
             }
             else {
                 pickBar.setProgress(50);
+                boxerATextView.setTypeface(Typeface.DEFAULT);
+                boxerBTextView.setTypeface(Typeface.DEFAULT);
             }
+
+            final Button pickButton = (Button)rowView.findViewById(R.id.pickButton);
+            pickButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    pickButton.setVisibility(View.INVISIBLE);
+                    pickBar.setVisibility(View.VISIBLE);
+                }
+            });
 
             pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -300,8 +316,9 @@ public class FightListFragment extends Fragment {
                         mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerA.id, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject object) {
-                                boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
+                                fight.currentUserPickedWinnerId = fight.boxerA.id;
                                 seekBar.setEnabled(true);
+                                notifyDataSetChanged();
                             }
                         }));
                     }
@@ -311,8 +328,9 @@ public class FightListFragment extends Fragment {
                         mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerB.id, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject object) {
-                                boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                                fight.currentUserPickedWinnerId = fight.boxerB.id;
                                 seekBar.setEnabled(true);
+                                notifyDataSetChanged();
                             }
                         }));
                     }

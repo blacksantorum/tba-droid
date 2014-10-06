@@ -3,9 +3,11 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -23,6 +25,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
@@ -35,10 +39,12 @@ import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
 import com.tba.theboxingapp.Model.User;
+import com.tba.theboxingapp.Networking.TBAVolley;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        FightListFragment.OnFragmentInteractionListener, FightDetailFragment.OnFragmentInteractionListener, UserDetailFragment.OnFragmentInteractionListener  {
+        FightListFragment.OnFragmentInteractionListener, FightDetailFragment.OnFragmentInteractionListener, UserDetailFragment.OnFragmentInteractionListener,
+        Response.ErrorListener    {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -88,6 +94,9 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             if(resultCode == RESULT_OK){
                 if (data.getBooleanExtra("login", false)) {
                     Log.i("Result","User logged in");
+                    mNavigationDrawerFragment.mSlideoutProfileTextView.setText(User.currentUser().getName());
+                    mNavigationDrawerFragment.mSlideoutProfileImageView.
+                            setImageUrl(User.currentUser().profileImageUrl, TBAVolley.getInstance(this).getImageLoader());
                     mNavigationDrawerFragment.selectItem(0);
                 }
             }
@@ -186,6 +195,17 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        new AlertDialog.Builder(this).setTitle("Network error").setMessage("Sorry, but your request failed")
+        .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Do nothing;
+            }
+        }).show();
     }
 
     /**

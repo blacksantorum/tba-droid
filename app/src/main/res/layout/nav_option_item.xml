@@ -19,7 +19,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="22dp"
-        android:text="Featured"
         android:textColor="@color/dark_red"
         android:layout_toRightOf="@id/navOptionImageView"
         android:layout_alignTop="@id/navOptionImageView"

@@ -66,8 +66,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     private DrawerLayout mDrawerLayout;
     private RelativeLayout mSlideoutProfileLayout;
-    private NetworkImageView mSlideoutProfileImageView;
-    private TextView mSlideoutProfileTextView;
+    public NetworkImageView mSlideoutProfileImageView;
+    public TextView mSlideoutProfileTextView;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 

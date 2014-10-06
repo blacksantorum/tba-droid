@@ -6,7 +6,9 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by christibbs on 9/16/14.
@@ -42,7 +44,7 @@ public class Comment extends BaseModel {
 
             String createdAtDateString = object.getString("created_at");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
+            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
             this.createdAt = sdf.parse(createdAtDateString);
 
             if (!object.isNull("pick")) {
