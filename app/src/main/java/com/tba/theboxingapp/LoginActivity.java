@@ -1,6 +1,7 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class LoginActivity extends Activity implements Response.Listener<JSONObject> {
+public class LoginActivity extends Activity implements Response.Listener<JSONObject>, Response.ErrorListener {
 
     public static final String PREFS_NAME = "TBAPref";
 
@@ -177,7 +178,18 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }
-        }));
+        }, this));
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        new AlertDialog.Builder(this).setTitle("Network error").setMessage("Sorry, but we could not log you in.")
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing;
+                    }
+                }).show();
     }
 
     @Override

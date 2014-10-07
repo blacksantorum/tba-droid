@@ -85,5 +85,6 @@
     android:layout_centerInParent="true"
     android:max="100"
     android:visibility="invisible"
+    android:focusable="false"
     />
 </RelativeLayout>

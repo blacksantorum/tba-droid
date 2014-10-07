@@ -64,7 +64,9 @@
         android:layout_below="@id/commentContentTextView"
         android:paddingLeft="5dp"
         android:paddingTop="2dp"
+        android:focusable="false"
         android:scaleType="fitCenter"
+        android:background="?android:attr/selectableItemBackground"
         />
     <TextView
         android:id="@+id/likesLabel"
@@ -85,6 +87,7 @@
         android:layout_toRightOf="@id/likesLabel"
         android:layout_below="@id/commentContentTextView"
         android:paddingLeft="5dp"
+        android:focusable="false"
         android:paddingTop="2dp"
         />
 </RelativeLayout>

@@ -39,7 +39,7 @@ public class Prediction extends BaseModel {
             userId = object.getInt("user_id");
 
             String updatedAtDateString = object.getString("updated_at");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             this.updatedAt = sdf.parse(updatedAtDateString);
 
             winnerId = object.getInt("winner_id");

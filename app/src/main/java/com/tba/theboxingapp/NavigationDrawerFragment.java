@@ -139,9 +139,9 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         mSlideoutProfileImageView = (NetworkImageView)view.findViewById(R.id.slideoutProfileImageView);
-        mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl,getImageLoader());
+        // mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl,getImageLoader());
         mSlideoutProfileTextView = (TextView)view.findViewById(R.id.slideoutProfileTextView);
-        mSlideoutProfileTextView.setText(User.currentUser().getName());
+        // mSlideoutProfileTextView.setText(User.currentUser().getName());
 
         OptionItem[] itemArray = new OptionItem[3];
         itemArray[0] = new OptionItem("Featured", "Upcoming and recent fights",R.drawable.featured);

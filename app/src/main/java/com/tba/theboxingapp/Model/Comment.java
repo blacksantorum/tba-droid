@@ -1,5 +1,7 @@
 package com.tba.theboxingapp.Model;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,6 +58,7 @@ public class Comment extends BaseModel {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        Log.i("Comment initer", this.toString());
     }
 
     //<editor-fold desc="Accessors">

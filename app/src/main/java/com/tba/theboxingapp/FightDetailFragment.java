@@ -91,6 +91,8 @@ public class FightDetailFragment extends Fragment {
     private List<Comment> mComments;
     private CommentMode mCommentMode;
 
+    private boolean shouldUpdatePickNumbers = true;
+
     private int mBoxerAPickPercentage;
     private int mBoxerBPickPercentage;
 
@@ -173,9 +175,9 @@ public class FightDetailFragment extends Fragment {
         mBoxerANameLabel = (TextView)v.findViewById(R.id.boxerANameLabel);
         mBoxerBNameLabel = (TextView)v.findViewById(R.id.boxerBNameLabel);
         mBoxerAPercentageLabel = (TextView)v.findViewById(R.id.boxerAPickPercentageLabel);
-        mBoxerAPercentageLabel.setText("0");
+        mBoxerAPercentageLabel.setText("0%");
         mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
-        mBoxerBPercentageLabel.setText("0");
+        mBoxerBPercentageLabel.setText("0%");
         mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
 
         mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
@@ -196,7 +198,7 @@ public class FightDetailFragment extends Fragment {
                             public void onResponse(JSONObject object) {
                                 fetchComments();
                             }
-                        },mFightId,mAddCommentEditText.getText().toString())
+                        },mFightId,mAddCommentEditText.getText().toString(), (TBAActivity)getActivity())
                     );
                 }
             }
@@ -236,7 +238,6 @@ public class FightDetailFragment extends Fragment {
         });
 
         fetchFight();
-        fetchComments();
         return v;
     }
 
@@ -244,7 +245,7 @@ public class FightDetailFragment extends Fragment {
         Thread th = new Thread(new Runnable() {
             int i = 0;
             public void run() {
-                while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage)) {
+                while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage) && shouldUpdatePickNumbers) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -295,6 +296,7 @@ public class FightDetailFragment extends Fragment {
                     Log.i("percentageA", "" + mBoxerAPickPercentage);
                     Log.i("percentageB", "" + mBoxerBPickPercentage);
                     updatePickPercentages();
+                    fetchComments();
                     /*
                     int i = 0;
 
@@ -318,7 +320,7 @@ public class FightDetailFragment extends Fragment {
                 }
 
             }
-        },mFightId));
+        },mFightId, (TBAActivity)getActivity()));
     }
 
 
@@ -345,7 +347,7 @@ public class FightDetailFragment extends Fragment {
             public void onResponse(JSONArray object) {
                 updateComments(object);
             }
-        },mFightId));
+        },mFightId, (TBAActivity)getActivity()));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -370,6 +372,7 @@ public class FightDetailFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        shouldUpdatePickNumbers = false;
         mListener = null;
     }
 
@@ -421,7 +424,19 @@ public class FightDetailFragment extends Fragment {
             View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
             NetworkImageView userImageView = (NetworkImageView)v.findViewById(R.id.commentUserImageView);
             TextView userHandleLabel = (TextView)v.findViewById(R.id.commentUserHandleTextView);
-            TextView userPickLabel = (TextView)v.findViewById(R.id.commentUserHandleTextView);
+            TextView userPickLabel = (TextView)v.findViewById(R.id.commentPickTextView);
+            if (comment.prediction == null) {
+                userPickLabel.setVisibility(View.INVISIBLE);
+            }
+            else {
+                if (comment.prediction.winnerId == mFight.boxerA.id) {
+                    userPickLabel.setText("picked " + mFight.boxerA.fullName);
+                } else {
+                    userPickLabel.setText("picked " + mFight.boxerB.fullName);
+                }
+                userPickLabel.setVisibility(View.VISIBLE);
+            }
+
             TextView commentContentLabel = (TextView)v.findViewById(R.id.commentContentTextView);
             TextView timeAgoLabel = (TextView)v.findViewById(R.id.timeAgoLabel);
             ImageButton jabButton = (ImageButton)v.findViewById(R.id.jabButton);
@@ -440,6 +455,13 @@ public class FightDetailFragment extends Fragment {
                 deleteButton.setVisibility(View.INVISIBLE);
             }
 
+            if (comment.likedByCurrentUser) {
+                jabButton.setEnabled(false);
+            }
+            else {
+                jabButton.setEnabled(true);
+            }
+
             jabButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -448,9 +470,10 @@ public class FightDetailFragment extends Fragment {
 
                         @Override
                         public void onResponse(String string) {
-                            likesLabel.setText(new String("" + comment.likes + 1));
+                            likesLabel.setText(new String("" + (comment.likes + 1)));
+                            comment.likedByCurrentUser = true;
                         }
-                    }));
+                    }, (TBAActivity)getActivity()));
                 }
             });
 

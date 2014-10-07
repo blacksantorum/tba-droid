@@ -10,12 +10,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -42,37 +45,27 @@ public class TBARequestFactory {
     }
 
     public static JsonObjectRequest LoginRequest
-            (JSONObject user, Response.Listener<JSONObject> listener)
+            (JSONObject user, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "signin";
 
         Log.i("url",url);
 
-        return new JsonObjectRequest(url,user,listener,new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonObjectRequest(url,user,listener,errorListener);
     }
 
-    public static JsonArrayRequest PlacesRequest(Response.Listener<JSONArray> listener)
+    public static JsonArrayRequest PlacesRequest(Response.Listener<JSONArray> listener, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "places?session_token=";
         url += User.currentUser().sessionToken;
 
         Log.i("url",url);
 
-        return new JsonArrayRequest(url,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonArrayRequest(url,listener, errorListener);
     }
 
     public static JsonArrayRequest FightsRequest(Response.Listener<JSONArray> listener,
-                                                 boolean featured)
+                                                 boolean featured, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/";
 
@@ -86,15 +79,11 @@ public class TBARequestFactory {
 
         Log.i("url",url);
 
-        return new JsonArrayRequest(url,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonArrayRequest(url,listener, errorListener);
     }
 
-    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, String comment)
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, String comment,
+                                                       Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "/comments";
 
@@ -108,54 +97,35 @@ public class TBARequestFactory {
             e.printStackTrace();
         }
 
-        return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }
 
-    public static JsonObjectRequest FightRequest(Response.Listener<JSONObject> listener, int fightId)
+    public static JsonObjectRequest FightRequest(Response.Listener<JSONObject> listener, int fightId, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "?session_token=" + User.currentUser().sessionToken;
 
-        return new JsonObjectRequest(url,null,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonObjectRequest(url,null,listener, errorListener);
     }
 
     public static JsonArrayRequest CommentsRequest(Response.Listener<JSONArray> listener,
-                                                   int fightId) {
+                                                   int fightId, Response.ErrorListener errorListener) {
         String url = BASE_URL + "fights/";
 
         url += fightId + "/comments?session_token=";
         url += User.currentUser().sessionToken;
 
-        return new JsonArrayRequest(url,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonArrayRequest(url,listener, errorListener);
     }
 
-    public static StringRequest LikeRequest(Comment comment, Response.Listener<String> listener)
+    public static StringRequest LikeRequest(Comment comment, Response.Listener<String> listener, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "comments/" + comment.id + "/like";
 
-        return new StringRequest(withSessionToken(url),listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new StringRequest(Request.Method.POST, withSessionToken(url),listener, errorListener);
     }
 
-    public static JsonObjectRequest PickFightRequest(int fightId, int winnerId, Response.Listener<JSONObject> listener)
+    public static JsonObjectRequest PickFightRequest(int fightId, int winnerId, Response.Listener<JSONObject> listener,
+                                                     Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "/picks";
 
@@ -169,35 +139,20 @@ public class TBARequestFactory {
             e.printStackTrace();
         }
 
-        return new JsonObjectRequest(withSessionToken(url),params,listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonObjectRequest(withSessionToken(url),params,listener, errorListener);
     }
 
     public static JsonArrayRequest UserCommentsRequest(Response.Listener<JSONArray> listener,
-                                                   int userId) {
+                                                   int userId, Response.ErrorListener errorListener) {
         String url = BASE_URL + "users/" + userId + "/comments";
 
-        return new JsonArrayRequest(withSessionToken(url),listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonArrayRequest(withSessionToken(url),listener, errorListener);
     }
 
     public static JsonArrayRequest UserPicksRequest(Response.Listener<JSONArray> listener,
-                                                       int userId) {
+                                                       int userId, Response.ErrorListener errorListener) {
         String url = BASE_URL + "users/" + userId + "/picks";
 
-        return new JsonArrayRequest(withSessionToken(url),listener, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("Error", "Response is: " + error.toString());
-            }
-        });
+        return new JsonArrayRequest(withSessionToken(url),listener, errorListener);
     }
 }

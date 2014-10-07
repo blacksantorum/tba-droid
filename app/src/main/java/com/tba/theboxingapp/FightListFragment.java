@@ -175,7 +175,7 @@ public class FightListFragment extends Fragment {
                 mLoadingFightsProgress.setVisibility(View.INVISIBLE);
                 mLoadingFightsTextView.setVisibility(View.INVISIBLE);
             }
-        }, featured));
+        }, featured, (TBAActivity)getActivity()));
     }
 
     @Override
@@ -320,7 +320,7 @@ public class FightListFragment extends Fragment {
                                 seekBar.setEnabled(true);
                                 notifyDataSetChanged();
                             }
-                        }));
+                        }, (TBAActivity)getActivity()));
                     }
 
                     if (i == 100) {
@@ -332,7 +332,7 @@ public class FightListFragment extends Fragment {
                                 seekBar.setEnabled(true);
                                 notifyDataSetChanged();
                             }
-                        }));
+                        }, (TBAActivity)getActivity()));
                     }
                 }
 

@@ -177,7 +177,7 @@ public class UserDetailFragment extends Fragment {
                 mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
             }
-        },mUserId));
+        },mUserId, (TBAActivity)getActivity()));
     }
 
     private void loadComments()
@@ -214,7 +214,7 @@ public class UserDetailFragment extends Fragment {
                 mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
             }
-        }, mUserId));
+        }, mUserId, (TBAActivity)getActivity()));
     }
 
     // TODO: Rename method, update argument and hook method into UI event

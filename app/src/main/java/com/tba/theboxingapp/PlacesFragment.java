@@ -96,7 +96,7 @@ public class PlacesFragment extends MapFragment implements LocationListener
 
                                                       }
                                                   }
-                ));
+                , (TBAActivity)getActivity()));
     }
 
     public  PlacesFragment()
