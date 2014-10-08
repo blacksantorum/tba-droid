@@ -116,14 +116,16 @@
                 android:layout_height="wrap_content"
                 android:text="COMMENTS"
                 />
-            <TextView
+            <Button
                 android:id="@+id/changeSortLabel"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="22dp"
                 android:text="Show new"
+                android:textSize="15dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignTop="@id/commentsLabel"
                 android:textColor="@color/link_blue"
+                android:background="@android:color/transparent"
                 />
         </RelativeLayout>
         <!--
@@ -212,5 +214,15 @@
             android:background="@android:color/transparent"
             />
     </RelativeLayout>
+    <!--
+    <View
+        android:id="@+id/addCommentShadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/shadow"
+        android:layout_above="@id/addCommentToolbar"
+        android:visibility="invisible"
+        />
+    -->
 
 </RelativeLayout>

@@ -16,6 +16,7 @@ public class User extends BaseModel {
     public String profileImageUrl;
     public String twitterId;
     public String sessionToken;
+    public boolean isLoggedIn;
 
     private static User current;
 
@@ -46,6 +47,7 @@ public class User extends BaseModel {
             this.twitterId = ParseTwitterUtils.getTwitter().getUserId();
             this.profileImageUrl = userObject.getString("img");
             this.name = userObject.getString("name");
+            this.isLoggedIn = true;
         } catch (JSONException e) {
             e.printStackTrace();
         }

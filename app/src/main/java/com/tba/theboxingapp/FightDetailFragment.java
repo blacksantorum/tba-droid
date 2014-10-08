@@ -7,12 +7,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -78,6 +81,8 @@ public class FightDetailFragment extends Fragment {
     private TextView mBoxerBPercentageLabel;
     private TextView mBoxerBNameLabel;
 
+   // private View mShadowView;
+
     private TextView mWeightClassLabel;
     private ListView mCommentsListView;
     private CommentArrayAdapter mCommentArrayAdapter;
@@ -87,7 +92,7 @@ public class FightDetailFragment extends Fragment {
     private EditText mAddCommentEditText;
     private ImageButton mSendCommentButton;
 
-    private TextView mChangeSortLabel;
+    private Button mChangeSortLabel;
 
     private ProgressBar mCommentsProgressBar;
     private TextView mCommentsLoadingTextView;
@@ -191,6 +196,7 @@ public class FightDetailFragment extends Fragment {
         mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
         mBoxerBPercentageLabel.setText("0%");
         mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
+        // mShadowView = (View)v.findViewById(R.id.addCommentShadow);
 
         mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
         mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
@@ -210,7 +216,7 @@ public class FightDetailFragment extends Fragment {
                             @Override
                             public void onResponse(JSONObject object) {
                                 mAddCommentEditText.setText("");
-                                mBoxerBNameLabel.requestFocus();
+                                mAddCommentEditText.clearFocus();
                                 fetchComments(false);
                                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
                                         Context.INPUT_METHOD_SERVICE);
@@ -239,15 +245,40 @@ public class FightDetailFragment extends Fragment {
 
         //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
+        /*
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showCommentPage();
             }
         });
+        */
+        /*
+        mAddCommentEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_DONE) {
+                    mShadowView.setVisibility(View.INVISIBLE);
+                }
+                return false;
+            }
+        });
+
+        mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    mShadowView.setVisibility(View.VISIBLE);
+                } else {
+                    mShadowView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+        */
+
         mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
 
-        mChangeSortLabel = (TextView)v.findViewById(R.id.changeSortLabel);
+        mChangeSortLabel = (Button)v.findViewById(R.id.changeSortLabel);
         mChangeSortLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -454,6 +485,17 @@ public class FightDetailFragment extends Fragment {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
             NetworkImageView userImageView = (NetworkImageView)v.findViewById(R.id.commentUserImageView);
+
+            userImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.container, UserDetailFragment.newInstance(comment.user.id, comment.user.name, comment.user.profileImageUrl)).
+                            addToBackStack(null).commit();
+                }
+            });
+
             TextView userHandleLabel = (TextView)v.findViewById(R.id.commentUserHandleTextView);
             TextView userPickLabel = (TextView)v.findViewById(R.id.commentPickTextView);
             if (comment.prediction == null) {
@@ -511,14 +553,13 @@ public class FightDetailFragment extends Fragment {
             return v;
         }
 
-        private CharSequence prettyTimeAgo(Date date)
+        private String prettyTimeAgo(Date date)
         {
             Date currentDate = new Date();
             long currentDateLong = currentDate.getTime();
             long oldDate = date.getTime();
 
-            return DateUtils
-                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+            return PrettyTime.getTimeAgo(oldDate);
         }
     }
 }

@@ -199,16 +199,15 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
 
     @Override
     public void onErrorResponse(VolleyError volleyError) {
-        for (int i = 0; i < volleyError.getStackTrace().length; i++) {
-            Log.v("Error trace", volleyError.getStackTrace()[i].toString());
+        if (User.currentUser().isLoggedIn) {
+            new AlertDialog.Builder(this).setTitle("Network error").setMessage("Sorry, but your request failed")
+                    .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Do nothing;
+                        }
+                    }).show();
         }
-        new AlertDialog.Builder(this).setTitle("Network error").setMessage("Sorry, but your request failed")
-        .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                // Do nothing;
-            }
-        }).show();
     }
 
     /**

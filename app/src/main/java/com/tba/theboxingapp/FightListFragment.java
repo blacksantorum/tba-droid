@@ -292,13 +292,13 @@ public class FightListFragment extends Fragment {
             if (fight.state == Fight.State.UPCOMING) {
 
                 if (fight.currentUserPickedWinnerId == fight.boxerA.id) {
-                    pickButton.setText("Change your pick!");
+                    pickButton.setText("Change your pick?");
                     pickBar.setProgress(0);
                     boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
                     boxerBTextView.setTypeface(Typeface.DEFAULT);
                 } else if (fight.currentUserPickedWinnerId == fight.boxerB.id) {
                     pickBar.setProgress(100);
-                    pickButton.setText("Change your pick!");
+                    pickButton.setText("Change your pick?");
                     boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     boxerATextView.setTypeface(Typeface.DEFAULT);
                 } else {

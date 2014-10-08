@@ -285,14 +285,13 @@ public class UserDetailFragment extends Fragment {
             return v;
         }
 
-        private CharSequence prettyTimeAgo(Date date)
+        private String prettyTimeAgo(Date date)
         {
             Date currentDate = new Date();
             long currentDateLong = currentDate.getTime();
             long oldDate = date.getTime();
 
-            return DateUtils
-                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+            return PrettyTime.getTimeAgo(oldDate);
         }
     }
 
@@ -324,14 +323,13 @@ public class UserDetailFragment extends Fragment {
             return v;
         }
 
-        private CharSequence prettyTimeAgo(Date date)
+        private String prettyTimeAgo(Date date)
         {
             Date currentDate = new Date();
             long currentDateLong = currentDate.getTime();
             long oldDate = date.getTime();
 
-            return DateUtils
-                    .getRelativeTimeSpanString(oldDate, currentDateLong, 0);
+            return PrettyTime.getTimeAgo(oldDate);
         }
     }
 
