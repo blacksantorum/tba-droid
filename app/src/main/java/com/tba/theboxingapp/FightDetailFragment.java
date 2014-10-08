@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -60,8 +61,13 @@ public class FightDetailFragment extends Fragment {
     public enum CommentMode { SHOW_TOP, SHOW_NEW};
 
     private static final String FIGHT_PARAM = "fight_param";
+    private static final String BOXER_A_PARAM = "boxer_a_param";
+    private static final String BOXER_B_PARAM = "boxer_b_param";
 
     private int mFightId;
+    private String mBoxerAName;
+    private String mBoxerBName;
+
     private Fight mFight;
 
     private Handler mPercentageCountHandler;
@@ -103,6 +109,8 @@ public class FightDetailFragment extends Fragment {
         FightDetailFragment fragment = new FightDetailFragment();
         Bundle args = new Bundle();
         args.putInt(FIGHT_PARAM,fight.id);
+        args.putString(BOXER_A_PARAM, fight.boxerA.fullName);
+        args.putString(BOXER_B_PARAM, fight.boxerB.fullName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -116,6 +124,8 @@ public class FightDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             this.mFightId = getArguments().getInt(FIGHT_PARAM);
+            this.mBoxerAName = getArguments().getString(BOXER_A_PARAM);
+            this.mBoxerBName = getArguments().getString(BOXER_B_PARAM);
 
             Log.i("fight_id", "Fight id " + mFightId);
             mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
@@ -151,10 +161,10 @@ public class FightDetailFragment extends Fragment {
             commentArray[i] = mComments.get(i);
         }
 
-        if (mCommentArrayAdapter == null) {
+        // if (mCommentArrayAdapter == null) {
             mCommentArrayAdapter = new CommentArrayAdapter(getActivity(),commentArray);
             mCommentsListView.setAdapter(mCommentArrayAdapter);
-        }
+       //  }
         mCommentArrayAdapter.comments = commentArray;
         mCommentArrayAdapter.notifyDataSetChanged();
         mCommentsLayout.setVisibility(View.VISIBLE);
@@ -173,7 +183,9 @@ public class FightDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_fight_detail, container, false);
         mBoxerANameLabel = (TextView)v.findViewById(R.id.boxerANameLabel);
+        mBoxerANameLabel.setText(mBoxerAName);
         mBoxerBNameLabel = (TextView)v.findViewById(R.id.boxerBNameLabel);
+        mBoxerBNameLabel.setText(mBoxerBName);
         mBoxerAPercentageLabel = (TextView)v.findViewById(R.id.boxerAPickPercentageLabel);
         mBoxerAPercentageLabel.setText("0%");
         mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
@@ -188,6 +200,7 @@ public class FightDetailFragment extends Fragment {
                 TBAVolley.getInstance(getActivity()).getImageLoader());
 
         mSendCommentButton = (ImageButton)v.findViewById(R.id.sendCommentButton);
+
         mSendCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,7 +209,12 @@ public class FightDetailFragment extends Fragment {
                         TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject object) {
-                                fetchComments();
+                                mAddCommentEditText.setText("");
+                                mBoxerBNameLabel.requestFocus();
+                                fetchComments(false);
+                                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+                                        Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(mAddCommentEditText.getWindowToken(), 0);
                             }
                         },mFightId,mAddCommentEditText.getText().toString(), (TBAActivity)getActivity())
                     );
@@ -279,8 +297,8 @@ public class FightDetailFragment extends Fragment {
                 try {
                     JSONObject fightObject = object.getJSONObject("fight");
                     mFight = new Fight(fightObject);
-                    mBoxerANameLabel.setText(mFight.boxerA.fullName);
-                    mBoxerBNameLabel.setText(mFight.boxerB.fullName);
+                    // mBoxerANameLabel.setText(mFight.boxerA.fullName);
+                    // mBoxerBNameLabel.setText(mFight.boxerB.fullName);
                     mWeightClassLabel.setText(mFight.weightClass);
                     JSONArray boxerArray = object.getJSONObject("fight").getJSONArray("boxers");
                     for (int i = 0; i < boxerArray.length() ; i++ ) {
@@ -296,7 +314,7 @@ public class FightDetailFragment extends Fragment {
                     Log.i("percentageA", "" + mBoxerAPickPercentage);
                     Log.i("percentageB", "" + mBoxerBPickPercentage);
                     updatePickPercentages();
-                    fetchComments();
+                    fetchComments(true);
                     /*
                     int i = 0;
 
@@ -334,18 +352,30 @@ public class FightDetailFragment extends Fragment {
             mCommentMode = CommentMode.SHOW_NEW;
             mChangeSortLabel.setText("Show top");
         }
-        fetchComments();
+        fetchComments(true);
     }
 
-    private void fetchComments()
+    private void fetchComments(final boolean onMainQueue)
     {
+        RequestQueue queue;
+
+        if (onMainQueue) {
+            queue = mRequestQueue;
+        } else {
+            queue = Volley.newRequestQueue(getActivity());
+        }
+
         mCommentsLayout.setVisibility(View.INVISIBLE);
         mCommentsProgressBar.setVisibility(View.VISIBLE);
         mCommentsLoadingTextView.setVisibility(View.VISIBLE);
-        mRequestQueue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
+        queue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray object) {
+                if (!onMainQueue) {
+                    Log.i("Recomment",object.toString());
+                }
                 updateComments(object);
+
             }
         },mFightId, (TBAActivity)getActivity()));
     }
@@ -413,6 +443,7 @@ public class FightDetailFragment extends Fragment {
 
         public CommentArrayAdapter(Context context, Comment[] comments) {
             super(context, R.layout.fight_comment_detail, comments );
+            this.comments = comments;
             this.context = context;
         }
 

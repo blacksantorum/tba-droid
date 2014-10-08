@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -196,9 +197,22 @@ public class NavigationDrawerFragment extends Fragment {
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
 
+            private void hideKeyboard()
+            {
+                InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                // check if no view has focus:
+                View view = getActivity().getCurrentFocus();
+                if (view != null) {
+                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+            }
+
             @Override
             public void onDrawerOpened(View drawerView) {
+                // hideKeyboard();
                 super.onDrawerOpened(drawerView);
+
                 if (!isAdded()) {
                     return;
                 }
