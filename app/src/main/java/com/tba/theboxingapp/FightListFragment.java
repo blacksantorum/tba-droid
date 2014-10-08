@@ -275,77 +275,88 @@ public class FightListFragment extends Fragment {
 
             TextView resultTextView = (TextView)rowView.findViewById(R.id.resultTextView);
             if (fight.state == Fight.State.PAST) {
-                if (fight.stoppage) {
-                    resultTextView.setText("KO");
+                if (fight.winnerId != 0) {
+                    if (fight.stoppage) {
+                        resultTextView.setText("KO");
+                    } else {
+                        resultTextView.setText("def");
+                    }
                 } else {
-                    resultTextView.setText("def");
+                    resultTextView.setText("drew");
                 }
             }
 
-            final SeekBar pickBar = (SeekBar)rowView.findViewById(R.id.pickBar);
-            if (fight.currentUserPickedWinnerId == fight.boxerA.id) {
-                pickBar.setProgress(0);
-                boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
-                boxerBTextView.setTypeface(Typeface.DEFAULT);
-            }
-            else if (fight.currentUserPickedWinnerId == fight.boxerB.id) {
-                pickBar.setProgress(100);
-                boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                boxerATextView.setTypeface(Typeface.DEFAULT);
-            }
-            else {
-                pickBar.setProgress(50);
-                boxerATextView.setTypeface(Typeface.DEFAULT);
-                boxerBTextView.setTypeface(Typeface.DEFAULT);
-            }
+            final Button pickButton = (Button) rowView.findViewById(R.id.pickButton);
+            final SeekBar pickBar = (SeekBar) rowView.findViewById(R.id.pickBar);
 
-            final Button pickButton = (Button)rowView.findViewById(R.id.pickButton);
-            pickButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    pickButton.setVisibility(View.INVISIBLE);
-                    pickBar.setVisibility(View.VISIBLE);
+            if (fight.state == Fight.State.UPCOMING) {
+
+                if (fight.currentUserPickedWinnerId == fight.boxerA.id) {
+                    pickButton.setText("Change your pick!");
+                    pickBar.setProgress(0);
+                    boxerATextView.setTypeface(Typeface.DEFAULT_BOLD);
+                    boxerBTextView.setTypeface(Typeface.DEFAULT);
+                } else if (fight.currentUserPickedWinnerId == fight.boxerB.id) {
+                    pickBar.setProgress(100);
+                    pickButton.setText("Change your pick!");
+                    boxerBTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                    boxerATextView.setTypeface(Typeface.DEFAULT);
+                } else {
+                    pickBar.setProgress(50);
+                    boxerATextView.setTypeface(Typeface.DEFAULT);
+                    boxerBTextView.setTypeface(Typeface.DEFAULT);
                 }
-            });
 
-            pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(final SeekBar seekBar, int i, boolean b) {
-                    if (i == 0) {
-                        seekBar.setEnabled(false);
-                        mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerA.id, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject object) {
-                                fight.currentUserPickedWinnerId = fight.boxerA.id;
-                                seekBar.setEnabled(true);
-                                notifyDataSetChanged();
-                            }
-                        }, (TBAActivity)getActivity()));
+                pickButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        pickButton.setVisibility(View.INVISIBLE);
+                        pickBar.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                pickBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, int i, boolean b) {
+                        if (i == 0) {
+                            seekBar.setEnabled(false);
+                            mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerA.id, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject object) {
+                                    fight.currentUserPickedWinnerId = fight.boxerA.id;
+                                    seekBar.setEnabled(true);
+                                    notifyDataSetChanged();
+                                }
+                            }, (TBAActivity) getActivity()));
+                        }
+
+                        if (i == 100) {
+                            seekBar.setEnabled(false);
+                            mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerB.id, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject object) {
+                                    fight.currentUserPickedWinnerId = fight.boxerB.id;
+                                    seekBar.setEnabled(true);
+                                    notifyDataSetChanged();
+                                }
+                            }, (TBAActivity) getActivity()));
+                        }
                     }
 
-                    if (i == 100) {
-                        seekBar.setEnabled(false);
-                        mRequestQueue.add(TBARequestFactory.PickFightRequest(fight.id, fight.boxerB.id, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject object) {
-                                fight.currentUserPickedWinnerId = fight.boxerB.id;
-                                seekBar.setEnabled(true);
-                                notifyDataSetChanged();
-                            }
-                        }, (TBAActivity)getActivity()));
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
                     }
-                }
 
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
 
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
+                    }
+                });
+            } else {
+                pickBar.setVisibility(View.GONE);
+                pickButton.setVisibility(View.GONE);
+            }
 
             return rowView;
         }

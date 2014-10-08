@@ -34,6 +34,7 @@ public class Fight extends BaseModel {
         try {
             this.id = object.getInt("id");
             this.location = object.getString("location");
+            this.winnerId = object.getInt("winner_id");
 
             if (object.has("users_pick")) {
                 if (!object.isNull("users_pick")) {
@@ -59,6 +60,24 @@ public class Fight extends BaseModel {
 
             boxerA = new Boxer(boxersArray.getJSONObject(0));
             boxerB = new Boxer(boxersArray.getJSONObject(1));
+
+            if (winnerId >= 0) {
+                this.state = State.PAST;
+                if (winnerId > 0) {
+                    this.stoppage = object.getBoolean("stoppage");
+                    if (winnerId == boxerB.id) {
+                        Boxer tmp = boxerA;
+                        boxerA = boxerB;
+                        boxerB = tmp;
+                    }
+                }
+            }
+            else if (winnerId == -1){
+                this.state = State.IN_PROGRESS;
+            } else {
+                this.state = State.UPCOMING;
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (ParseException e) {
