@@ -37,7 +37,7 @@ public class UserActivityComment extends BaseModel {
             this.content = object.getString("body");
             this.fightTitle = object.getString("fight_name");
             String createdAtDateString = object.getString("created_at");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(Calendar.getInstance().getTimeZone());
             try {
                 this.createdAt = sdf.parse(createdAtDateString);
