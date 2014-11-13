@@ -1,0 +1,69 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.tba.theboxingapp.AddCommentActivity">
+
+    <ImageButton
+        android:background="?android:attr/selectableItemBackground"
+        android:src="@drawable/back"
+        android:layout_width="25dip"
+        android:layout_height="40dip"
+        android:id="@+id/back_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+
+        />
+    <com.android.volley.toolbox.NetworkImageView
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:id="@+id/add_comment_user_image"
+        android:background="@color/black"
+        android:layout_toRightOf="@id/back_button"
+        android:layout_marginLeft="5dip"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dip"
+        android:id="@+id/add_comment_user_name"
+        android:text="the boxing app"
+        android:layout_toRightOf="@id/add_comment_user_image"
+        android:layout_marginLeft="5dip"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dip"
+        android:id="@+id/add_comment_user_screen_name"
+        android:textColor="@color/gray"
+        android:text="\@theboxingapp"
+        android:layout_toRightOf="@id/add_comment_user_image"
+        android:layout_below="@id/add_comment_user_name"
+        android:layout_marginLeft="5dip"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="40dip"
+        android:text="Comment"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:gravity="top"
+        android:id="@+id/edit_text"
+        android:layout_below="@+id/back_button"
+        android:layout_marginTop="10dp"
+        android:hint="Add comment"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tag_users"
+        android:visibility="invisible"></ListView>
+
+</RelativeLayout>
