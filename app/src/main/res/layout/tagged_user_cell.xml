@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="8dip"
+    >
+    <com.android.volley.toolbox.NetworkImageView
+        android:id="@+id/tag_users_image_view"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/logo"
+        />
+    <TextView
+        android:id="@+id/tag_users_name_label"
+        android:layout_marginLeft="5dip"
+        android:layout_width="wrap_content"
+        android:layout_height="15dip"
+        android:text="Chris Tibbs"
+        android:layout_toRightOf="@id/tag_users_image_view"
+        />
+
+    <TextView
+        android:id="@+id/tag_users_handle_label"
+        android:layout_marginLeft="5dip"
+        android:layout_width="wrap_content"
+        android:layout_height="15dip"
+        android:text="\@spicykeychain"
+        android:textColor="@color/gray"
+        android:layout_toRightOf="@id/tag_users_image_view"
+        android:layout_below="@id/tag_users_name_label"
+        />
+
+
+
+</RelativeLayout>

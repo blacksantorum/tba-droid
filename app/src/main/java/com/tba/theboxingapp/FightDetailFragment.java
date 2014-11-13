@@ -3,6 +3,7 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -210,6 +211,9 @@ public class FightDetailFragment extends Fragment {
         mSendCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), AddCommentActivity.class);
+                getActivity().startActivity(intent);
+                /*
                 if (mAddCommentEditText.getText().length() > 0) {
                     TBAVolley.getInstance(getActivity()).getRequestQueue().add(
                         TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
@@ -225,6 +229,7 @@ public class FightDetailFragment extends Fragment {
                         },mFightId,mAddCommentEditText.getText().toString(), (TBAActivity)getActivity())
                     );
                 }
+                */
             }
         });
 

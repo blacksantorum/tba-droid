@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -80,6 +81,25 @@ public class TBARequestFactory {
         Log.i("url",url);
 
         return new JsonArrayRequest(url,listener, errorListener);
+    }
+
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONObject[] tagged ,String comment,
+                                                       Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "fights/" + fightId + "/comments";
+
+        JSONObject params = new JSONObject();
+
+        try {
+            JSONObject commentObject = new JSONObject();
+            commentObject.put("users", tagged);
+            commentObject.put("body", comment);
+            params.put("comment", commentObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }
 
     public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, String comment,
@@ -154,5 +174,10 @@ public class TBARequestFactory {
         String url = BASE_URL + "users/" + userId + "/picks";
 
         return new JsonArrayRequest(withSessionToken(url),listener, errorListener);
+    }
+
+    public static JsonArrayRequest GetUsers(Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
+        String url = BASE_URL + "users";
+        return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
     }
 }
