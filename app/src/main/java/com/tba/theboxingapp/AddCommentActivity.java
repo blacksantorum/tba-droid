@@ -3,6 +3,9 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,15 +15,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Network;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
+import com.tba.theboxingapp.Adapters.TagCandidateListAdapter;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Model.UserActivityComment;
 import com.tba.theboxingapp.Networking.TBAVolley;
@@ -46,7 +52,22 @@ public class AddCommentActivity extends Activity {
     EditText mCommentContentTextView;
     ListView mTagCandidatesList;
 
-    TaggedUserAdapter mAdapter;
+
+    public void setTaggingMode(boolean taggingMode) {
+        this.taggingMode = taggingMode;
+        if (this.taggingMode) {
+            Log.i("Tag","Tag on!");
+            mTagCandidatesList.setVisibility(View.VISIBLE);
+        } else {
+            Log.i("Tag","Tag off!");
+            mTagCandidatesList.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    boolean taggingMode;
+    String partialCandidate;
+
+    TagCandidateListAdapter mAdapter;
 
     RequestQueue mRequestQueue = TBAVolley.getInstance(this).getRequestQueue();
     ImageLoader mImageLoader = TBAVolley.getInstance(this).getImageLoader();
@@ -71,20 +92,17 @@ public class AddCommentActivity extends Activity {
         mRequestQueue.add(TBARequestFactory.GetUsers(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
-                User[] allUserArray = new User[jsonArray.length()];
-
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         JSONObject userDict = (JSONObject) jsonArray.get(i);
                         User u = new User(userDict.getJSONObject("user"));
                         allUsers.add(u);
-                        allUserArray[i] = u;
                     } catch(JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
-                mAdapter = new TaggedUserAdapter(getApplicationContext(), allUserArray);
+                mAdapter = new TagCandidateListAdapter(getApplicationContext(), allUsers);
                 mTagCandidatesList.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 mTagCandidatesList.setVisibility(View.VISIBLE);
@@ -128,6 +146,8 @@ public class AddCommentActivity extends Activity {
         });
 
         mCommentContentTextView = (EditText)findViewById(R.id.add_comment_edit_text);
+        mCommentContentTextView.addTextChangedListener(new AddCommentTextWatcher());
+
         mTagCandidatesList = (ListView)findViewById(R.id.tag_users);
 
         mNameTextView.setText(User.currentUser().getName());
@@ -136,8 +156,6 @@ public class AddCommentActivity extends Activity {
                 mImageLoader);
 
         mHandleTextView.setText("@" + User.currentUser().getHandle());
-
-
 
     }
 
@@ -161,34 +179,54 @@ public class AddCommentActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    public class AddCommentTextWatcher implements TextWatcher {
 
-    public class TaggedUserAdapter extends ArrayAdapter<User> {
-        private final Context context;
-        public User[] users;
+        char deletedCharacter;
+        CharSequence priorText;
 
-        public TaggedUserAdapter(Context context, User[] users){
-            super(context, R.layout.tagged_user_cell, users);
-            this.context = context;
-            this.users = users;
+        public void afterTextChanged (Editable s) {
+            // Log.i("After text changed", "Called!");
         }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            User u = users[position];
+        public void beforeTextChanged (CharSequence s, int start, int count, int after) {
+            priorText = s;
+           //  Log.i("Before text changed", "Called!");
+            Log.i("Before prior text", String.valueOf(priorText));
 
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = inflater.inflate(R.layout.tagged_user_cell, parent, false);
+            if (after == 0 && count == 1) {
+                deletedCharacter = s.charAt(start);
+            }
 
-            NetworkImageView mTagCandidateImageView = (NetworkImageView)v.findViewById(R.id.tag_users_image_view);
-            TextView mTagCandidateNameLabel = (TextView)v.findViewById(R.id.tag_users_name_label);
-            TextView mTagCandidateHandleLabel = (TextView)v.findViewById(R.id.tag_users_handle_label);
 
-            mTagCandidateImageView.setImageUrl(u.profileImageUrl, mImageLoader);
-            mTagCandidateNameLabel.setText(u.getName());
-            mTagCandidateHandleLabel.setText("@" + u.getHandle());
+            // Log.i("Text watch", "S: " + s + ", Start: " + String.valueOf(start) + ", After: " + String.valueOf(after) + ", Count: " + String.valueOf(count));
+        }
 
-            return v;
+        public void onTextChanged (CharSequence s, int start, int before, int count) {
+
+            Log.i("onTextChanged Prior text", String.valueOf(priorText));
+            Log.i("S", String.valueOf(s));
+
+            // Log.i("On text changed", "Called!");
+
+            if (priorText.length() < s.length()) {
+                Log.i("Added character", String.valueOf(s.charAt(start)));
+                if (count == 1) { // Inserting one character
+                    if (!taggingMode && s.charAt(start) == '@') {
+                        setTaggingMode(true);
+                    } else if (taggingMode) {
+                        if (s.charAt(start) == ' ') {
+                            setTaggingMode(false);
+                        } else {
+                            partialCandidate += s.charAt(start);
+                        }
+                    }
+                }
+            } else if (priorText.length() > s.length()) {
+                Log.i("Deleted character", String.valueOf(deletedCharacter));
+                if (deletedCharacter == '@' && partialCandidate.length() == 0) {
+                    setTaggingMode(false);
+                }
+            }
         }
     }
 }

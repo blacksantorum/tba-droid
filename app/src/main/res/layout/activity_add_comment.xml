@@ -52,16 +52,19 @@
 
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
         android:gravity="top"
         android:id="@+id/add_comment_edit_text"
         android:layout_below="@+id/back_button"
         android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
         android:hint="Add comment"/>
 
     <ListView
+        android:layout_marginTop="5dip"
+        android:layout_below="@id/add_comment_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tag_users"
