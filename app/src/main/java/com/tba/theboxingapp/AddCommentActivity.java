@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,7 +53,6 @@ public class AddCommentActivity extends Activity {
     EditText mCommentContentTextView;
     ListView mTagCandidatesList;
 
-
     public void setTaggingMode(boolean taggingMode) {
         this.taggingMode = taggingMode;
         if (this.taggingMode) {
@@ -65,7 +65,7 @@ public class AddCommentActivity extends Activity {
     }
 
     boolean taggingMode;
-    String partialCandidate;
+    String partialCandidate = "";
 
     TagCandidateListAdapter mAdapter;
 
@@ -75,6 +75,12 @@ public class AddCommentActivity extends Activity {
 
     List<User> allUsers = new ArrayList<User>();
     List<User> taggedUsers = new ArrayList<User>();
+
+    @Override
+    protected  void onResume() {
+        super.onResume();
+        mCommentContentTextView.requestFocus();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +94,7 @@ public class AddCommentActivity extends Activity {
         mNameTextView = (TextView)findViewById(R.id.add_comment_user_name);
         mHandleTextView = (TextView)findViewById(R.id.add_comment_user_screen_name);
         mAddCommentButton = (Button)findViewById(R.id.add_comment_button);
+
 
         mRequestQueue.add(TBARequestFactory.GetUsers(new Response.Listener<JSONArray>() {
             @Override
@@ -105,7 +112,7 @@ public class AddCommentActivity extends Activity {
                 mAdapter = new TagCandidateListAdapter(getApplicationContext(), allUsers);
                 mTagCandidatesList.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
-                mTagCandidatesList.setVisibility(View.VISIBLE);
+                // mTagCandidatesList.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -119,6 +126,19 @@ public class AddCommentActivity extends Activity {
 
             @Override
             public void onClick(View view) {
+
+                String[] words = mCommentContentTextView.getText().toString().split(" ");
+
+                for (String word : words) {
+                    if (word.charAt(0) == '@') {
+                        for (User user : allUsers) {
+                            if (word.substring(1) == user.handle) {
+                                taggedUsers.add(user);
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 JSONObject[] tagged = new JSONObject[taggedUsers.size()];
 
@@ -149,6 +169,12 @@ public class AddCommentActivity extends Activity {
         mCommentContentTextView.addTextChangedListener(new AddCommentTextWatcher());
 
         mTagCandidatesList = (ListView)findViewById(R.id.tag_users);
+        mTagCandidatesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                
+            }
+        });
 
         mNameTextView.setText(User.currentUser().getName());
 
@@ -182,22 +208,25 @@ public class AddCommentActivity extends Activity {
     public class AddCommentTextWatcher implements TextWatcher {
 
         char deletedCharacter;
-        CharSequence priorText;
+        String priorText;
 
         public void afterTextChanged (Editable s) {
-            // Log.i("After text changed", "Called!");
+           //  Log.i("After text changed", String.valueOf(priorText));
+            if (s.toString().length() > 0) {
+                mAddCommentButton.setEnabled(true);
+            } else {
+                mAddCommentButton.setEnabled(false);
+            }
         }
 
         public void beforeTextChanged (CharSequence s, int start, int count, int after) {
-            priorText = s;
+            priorText = s.toString();
            //  Log.i("Before text changed", "Called!");
-            Log.i("Before prior text", String.valueOf(priorText));
+            // Log.i("Before prior text", String.valueOf(priorText));
 
             if (after == 0 && count == 1) {
                 deletedCharacter = s.charAt(start);
             }
-
-
             // Log.i("Text watch", "S: " + s + ", Start: " + String.valueOf(start) + ", After: " + String.valueOf(after) + ", Count: " + String.valueOf(count));
         }
 
@@ -208,8 +237,8 @@ public class AddCommentActivity extends Activity {
 
             // Log.i("On text changed", "Called!");
 
-            if (priorText.length() < s.length()) {
-                Log.i("Added character", String.valueOf(s.charAt(start)));
+            if (priorText.length() < s.toString().length()) {
+                // Log.i("Added character", String.valueOf(s.charAt(start)));
                 if (count == 1) { // Inserting one character
                     if (!taggingMode && s.charAt(start) == '@') {
                         setTaggingMode(true);
@@ -222,9 +251,11 @@ public class AddCommentActivity extends Activity {
                     }
                 }
             } else if (priorText.length() > s.length()) {
-                Log.i("Deleted character", String.valueOf(deletedCharacter));
+                // Log.i("Deleted character", String.valueOf(deletedCharacter));
                 if (deletedCharacter == '@' && partialCandidate.length() == 0) {
                     setTaggingMode(false);
+                } else {
+                    partialCandidate = partialCandidate.substring(0,partialCandidate.length() - 1);
                 }
             }
         }
