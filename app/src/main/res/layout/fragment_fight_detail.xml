@@ -103,68 +103,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/fight_detail_overlay"
         android:layout_above="@+id/addCommentToolbar">
-        <!--android:background="@drawable/abc_menu_dropdown_panel_holo_light"-->
-        >
-        <RelativeLayout
-            android:id="@+id/commentsHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
-            <TextView
-                android:id="@+id/commentsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="COMMENTS"
-                />
-            <Button
-                android:id="@+id/changeSortLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="22dp"
-                android:text="Show new"
-                android:textSize="15dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@id/commentsLabel"
-                android:textColor="@color/link_blue"
-                android:background="@android:color/transparent"
-                />
-        </RelativeLayout>
-        <!--
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
-        -->
-        <!--
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
-        -->
-        <!-- empty view -->
-        <!--
-        <LinearLayout android:id="@+id/emptyView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_ali
-            android:layout_centerVertical="true"
-            >
 
-            <TextView android:id="@+id/emptyText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
-                android:gravity="center"
-                android:text="There are no comments, kick the conversation off!">
-            </TextView>
-        </LinearLayout>
-        -->
         <ListView
             android:id="@+id/comments_list_view"
-            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/commentsHeader"
         />
     </RelativeLayout>
     <RelativeLayout

@@ -28,6 +28,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.internal.id;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.parse.LogInCallback;
@@ -51,6 +52,8 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
+    public static final String PREFS_NAME = "TBAPref";
+
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -65,7 +68,10 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUpDrawer();
-        showLogin();
+
+        if (User.currentUser().id == 0) {
+            showLogin();
+        }
     }
 
     private void showLogin()
@@ -187,7 +193,11 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
 
             SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
-            editor.remove("User");
+            editor.remove("Handle");
+            editor.remove("Name");
+            editor.remove("ImgUrl");
+            editor.remove("TwitterId");
+            editor.remove("SessionToken");
             editor.commit();
 
             showLogin();

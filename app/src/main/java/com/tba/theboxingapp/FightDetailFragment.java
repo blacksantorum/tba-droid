@@ -93,8 +93,6 @@ public class FightDetailFragment extends Fragment {
     private EditText mAddCommentEditText;
     private ImageButton mSendCommentButton;
 
-    private Button mChangeSortLabel;
-
     private ProgressBar mCommentsProgressBar;
     private TextView mCommentsLoadingTextView;
 
@@ -283,14 +281,6 @@ public class FightDetailFragment extends Fragment {
 
         mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
 
-        mChangeSortLabel = (Button)v.findViewById(R.id.changeSortLabel);
-        mChangeSortLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleMode();
-            }
-        });
-
         fetchFight();
         return v;
     }
@@ -375,20 +365,6 @@ public class FightDetailFragment extends Fragment {
 
             }
         },mFightId, (TBAActivity)getActivity()));
-    }
-
-
-
-    private void toggleMode() {
-        if (mCommentMode == CommentMode.SHOW_NEW) {
-            mCommentMode = CommentMode.SHOW_TOP;
-            mChangeSortLabel.setText("Show new");
-        }
-        else {
-            mCommentMode = CommentMode.SHOW_NEW;
-            mChangeSortLabel.setText("Show top");
-        }
-        fetchComments(true);
     }
 
     private void fetchComments(final boolean onMainQueue)

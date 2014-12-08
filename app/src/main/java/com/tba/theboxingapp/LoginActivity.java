@@ -73,18 +73,6 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
         mProgressBar = ((ProgressBar) findViewById(R.id.progressBar));
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.INVISIBLE);
-
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        String userString = settings.getString("User","");
-        if (userString != "") {
-            try {
-                JSONObject userObject = new JSONObject(userString);
-                signInWithRails(userObject);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     @Override
@@ -144,11 +132,15 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
                 mProgressBar.setVisibility(View.INVISIBLE);
                 Log.i("Response","Response is: "+ response.toString());
                 User.currentUser().updateWithLoginResponse(response);
-                // Save user
 
                 SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                 SharedPreferences.Editor editor = settings.edit();
-                editor.putString("User",finalUser.toString());
+                editor.putString("Handle",User.currentUser().handle);
+                editor.putString("Name",User.currentUser().name);
+                editor.putString("ImgUrl",User.currentUser().profileImageUrl);
+                editor.putString("TwitterId",User.currentUser().twitterId);
+                editor.putString("SessionToken",User.currentUser().sessionToken);
+                editor.putInt("Id",User.currentUser().id);
                 editor.commit();
 
                 Intent returnIntent = new Intent();
