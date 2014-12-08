@@ -172,7 +172,7 @@ public class AddCommentActivity extends Activity {
         mTagCandidatesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                
+
             }
         });
 
@@ -220,42 +220,58 @@ public class AddCommentActivity extends Activity {
         }
 
         public void beforeTextChanged (CharSequence s, int start, int count, int after) {
-            priorText = s.toString();
-           //  Log.i("Before text changed", "Called!");
-            // Log.i("Before prior text", String.valueOf(priorText));
 
-            if (after == 0 && count == 1) {
-                deletedCharacter = s.charAt(start);
-            }
-            // Log.i("Text watch", "S: " + s + ", Start: " + String.valueOf(start) + ", After: " + String.valueOf(after) + ", Count: " + String.valueOf(count));
         }
 
         public void onTextChanged (CharSequence s, int start, int before, int count) {
 
-            Log.i("onTextChanged Prior text", String.valueOf(priorText));
-            Log.i("S", String.valueOf(s));
+            // Log.i("onTextChanged Prior text", String.valueOf(priorText));
+            // Log.i("S", String.valueOf(s));
 
-            // Log.i("On text changed", "Called!");
+            char realLast = (before == 1 && count == 0) ? s.charAt(start - 1) : s.charAt(start);
 
-            if (priorText.length() < s.toString().length()) {
-                // Log.i("Added character", String.valueOf(s.charAt(start)));
-                if (count == 1) { // Inserting one character
-                    if (!taggingMode && s.charAt(start) == '@') {
+            if (realLast == '@') {
+                if (s.length() > 1) {
+                    if (s.charAt(start - 1) == ' ') {
                         setTaggingMode(true);
-                    } else if (taggingMode) {
-                        if (s.charAt(start) == ' ') {
-                            setTaggingMode(false);
+                    } else {
+                        setTaggingMode(false);
+                    }
+                } else {
+                    setTaggingMode(true);
+                }
+            } else {
+                Log.i("Info", "S is " + s.toString());
+                Log.i("Info", "start is " + String.valueOf(start));
+                Log.i("Info", "before is " + String.valueOf(before));
+                Log.i("Info", "count is " + String.valueOf(count));
+                Log.i("realLast", String.valueOf(realLast));
+
+                if (Character.isDigit(realLast) || Character.isLetter(realLast))
+                {
+                    Boolean tagMode = false;
+
+                    String mutableS = s.toString();
+                    mutableS = mutableS.substring(0, mutableS.length() - 1);
+
+                    while (mutableS.length() > 0 && !tagMode) {
+                        Log.i("mutableS", mutableS);
+
+                        char last = mutableS.charAt(mutableS.length() - 1);
+                        if (last == ' ') {
+                            break;
+                        } else if (last == '@') {
+                            tagMode = true;
+                        } else if (!Character.isDigit(mutableS.charAt(mutableS.length() - 1)) &&
+                                !Character.isLetter(mutableS.charAt(mutableS.length() - 1))) {
+                            break;
                         } else {
-                            partialCandidate += s.charAt(start);
+                            mutableS = mutableS.substring(0, mutableS.length() - 1);
                         }
                     }
-                }
-            } else if (priorText.length() > s.length()) {
-                // Log.i("Deleted character", String.valueOf(deletedCharacter));
-                if (deletedCharacter == '@' && partialCandidate.length() == 0) {
-                    setTaggingMode(false);
+                    setTaggingMode(tagMode);
                 } else {
-                    partialCandidate = partialCandidate.substring(0,partialCandidate.length() - 1);
+                    setTaggingMode(false);
                 }
             }
         }
