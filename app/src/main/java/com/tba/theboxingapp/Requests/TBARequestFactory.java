@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class TBARequestFactory {
 
-    private static final String BASE_URL = "http://www.theboxingapp.com/api/v1/";
+    private static final String BASE_URL = "http://www.theboxingapp.com/api/v2/";
 
     private static String withSessionToken(String url)
     {
@@ -65,6 +65,29 @@ public class TBARequestFactory {
         return new JsonArrayRequest(url,listener, errorListener);
     }
 
+    public static JsonObjectRequest FightsRequest(
+                                                 int page,
+                                                 Response.Listener<JSONObject> listener,
+                                                 boolean featured,
+                                                 Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "fights/";
+
+        if (featured) {
+            url += "future";
+        } else {
+            url += "past";
+        }
+
+        url += "?session_token=" + User.currentUser().sessionToken;
+        url += "&page=" + String.valueOf(page);
+
+        Log.d("page",url);
+
+        return new JsonObjectRequest(url,null,listener, errorListener);
+    }
+
+    /*
     public static JsonArrayRequest FightsRequest(Response.Listener<JSONArray> listener,
                                                  boolean featured, Response.ErrorListener errorListener)
     {
@@ -82,6 +105,7 @@ public class TBARequestFactory {
 
         return new JsonArrayRequest(url,listener, errorListener);
     }
+    */
 
     public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONObject[] tagged ,String comment,
                                                        Response.ErrorListener errorListener)

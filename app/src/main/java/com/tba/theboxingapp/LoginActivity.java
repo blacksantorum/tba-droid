@@ -56,28 +56,6 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
     private Button mLoginButton;
     private ProgressBar mProgressBar;
 
-    private String runThroughSuperSecretHash(String screenname)
-    {
-        Map <String,String> map = new HashMap<String, String>();
-        map.put("f","9");map.put("x","k");map.put("k","1");map.put("o","5");map.put("m","f");
-        map.put("w","x");map.put("u","d");map.put("b","w");map.put("z","7");map.put("a","r");
-        map.put("v","2");map.put("i","v");map.put("y","z");map.put("e","u");map.put("c","h");
-        map.put("d","t");map.put("h","s");map.put("q","i");map.put("j","g");map.put("p","e");
-        map.put("r","p");map.put("s","6");map.put("g","o");map.put("t","q");map.put("n","a");
-        map.put("l","b");map.put("0","3");map.put("1","4");map.put("2","m");map.put("3","j");
-        map.put("4","8");map.put("5","c");map.put("6","0");map.put("7","y");map.put("8","n");
-        map.put("9","l");map.put("_","_");
-
-        String superSecretHashed = new String();
-
-        for (int i = 0; i < screenname.length(); i++) {
-            String character = new String();
-            character += screenname.charAt(i);
-            superSecretHashed += map.get(character);
-        }
-        return superSecretHashed;
-    }
-
     public void connectWithTwitter(View view)
     {
         mLoginButton.setEnabled(false);
@@ -210,8 +188,6 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
                     try {
                         TBAuser.put("id", ParseTwitterUtils.getTwitter().getUserId());
                         TBAuser.put("screen_name", ParseTwitterUtils.getTwitter().getScreenName());
-                        TBAuser.put("password",
-                                runThroughSuperSecretHash(ParseTwitterUtils.getTwitter().getScreenName()));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

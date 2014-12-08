@@ -521,8 +521,14 @@ public class FightDetailFragment extends Fragment {
             final TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
             TextView deleteButton = (TextView)v.findViewById(R.id.deleteButton);
 
-            userImageView.setImageUrl(comment.user.profileImageUrl,
-                    TBAVolley.getInstance(getActivity().getApplicationContext()).getImageLoader());
+            if (comment.user.profileImageUrl != null) {
+                userImageView.setImageUrl(comment.user.profileImageUrl,
+                        TBAVolley.getInstance(getActivity().getApplicationContext()).getImageLoader());
+            } else {
+                userImageView.setImageDrawable(getResources().getDrawable(R.drawable.places));
+            }
+
+
             userHandleLabel.setText(comment.user.handle);
             commentContentLabel.setText(comment.body);
             timeAgoLabel.setText(prettyTimeAgo(comment.createdAt));
