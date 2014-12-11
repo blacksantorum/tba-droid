@@ -165,10 +165,9 @@ public class UserDetailFragment extends Fragment {
         mRequestQueue.add(TBARequestFactory.UserPicksRequest(picksPage, mUserId, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-
                 JSONArray array = null;
                 try {
-                    array = jsonObject.getJSONArray("fights");
+                    array = jsonObject.getJSONArray("picks");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

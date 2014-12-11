@@ -209,8 +209,6 @@ public class FightDetailFragment extends Fragment {
         mSendCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddCommentActivity.class);
-                getActivity().startActivity(intent);
                 /*
                 if (mAddCommentEditText.getText().length() > 0) {
                     TBAVolley.getInstance(getActivity()).getRequestQueue().add(
@@ -248,6 +246,16 @@ public class FightDetailFragment extends Fragment {
 
         //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
+        mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    Intent intent = new Intent(getActivity(), AddCommentActivity.class);
+                    getActivity().startActivity(intent);
+                    view.clearFocus();
+                }
+            }
+        });
         /*
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
             @Override

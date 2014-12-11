@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -80,6 +81,17 @@ public class AddCommentActivity extends Activity {
     protected  void onResume() {
         super.onResume();
         mCommentContentTextView.requestFocus();
+
+        mCommentContentTextView.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                InputMethodManager keyboard = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(mCommentContentTextView, 0);
+            }
+        },200);
     }
 
     @Override
@@ -90,6 +102,16 @@ public class AddCommentActivity extends Activity {
         getActionBar().hide();
 
         mBackButton = (ImageButton)findViewById(R.id.back_button);
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+                InputMethodManager keyboard = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.hideSoftInputFromWindow(view.getWindowToken(),0);
+            }
+        });
+
         mUserImageView = (NetworkImageView)findViewById(R.id.add_comment_user_image);
         mNameTextView = (TextView)findViewById(R.id.add_comment_user_name);
         mHandleTextView = (TextView)findViewById(R.id.add_comment_user_screen_name);
@@ -176,12 +198,12 @@ public class AddCommentActivity extends Activity {
             }
         });
 
-        mNameTextView.setText(User.currentUser().getName());
+        mNameTextView.setText(User.currentUser().name);
 
         mUserImageView.setImageUrl(User.currentUser().profileImageUrl,
                 mImageLoader);
 
-        mHandleTextView.setText("@" + User.currentUser().getHandle());
+        mHandleTextView.setText("@" + User.currentUser().handle);
 
     }
 

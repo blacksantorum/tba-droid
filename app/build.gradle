@@ -1,4 +1,20 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+
 apply plugin: 'com.android.application'
+
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
 
 android {
     compileSdkVersion 20
@@ -26,4 +42,11 @@ dependencies {
     compile files('libs/Parse-1.5.1/Parse-1.5.1.jar')
     compile 'com.mcxiaoke.volley:library:1.0.6@aar'
     compile 'com.google.android.gms:play-services:6.1.+'
+
+    compile('com.twitter.sdk.android:twitter:1.1.0@aar') {
+        transitive = true;
+    }
+    compile('com.crashlytics.sdk.android:crashlytics:2.1.0@aar') {
+        transitive = true;
+    }
 }

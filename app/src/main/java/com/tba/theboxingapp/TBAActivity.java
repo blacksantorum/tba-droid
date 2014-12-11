@@ -41,6 +41,8 @@ import com.parse.ParseUser;
 import com.parse.PushService;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterSession;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -190,6 +192,8 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         int id = item.getItemId();
         if (id == R.id.action_log_out) {
             User.clear();
+
+           // Twitter.logOut();
 
             SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
