@@ -1,10 +1,12 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,10 +28,12 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.Fight;
+import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
 
@@ -46,7 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FightListFragment extends Fragment {
+public class FightListFragment extends Fragment implements Response.ErrorListener {
     private static final String LOGIN_TYPE_PARAM = "login_type_param";
 
     public enum ListType { FEATURED, PAST };
@@ -225,9 +229,16 @@ public class FightListFragment extends Fragment {
                                                                         Date date = mFightListAdapter.dates.get(groupPosition);
                                                                         Fight fight = mFightListAdapter.fights.get(date).get(childPosition);
                                                                         FragmentManager fragmentManager = getFragmentManager();
+
+
                                                                         fragmentManager.beginTransaction()
                                                                                 .replace(R.id.container, FightDetailFragment.newInstance(fight)).
                                                                                 addToBackStack(null).commit();
+                                                                        /*
+                                                                        fragmentManager.beginTransaction()
+                                                                                .add(FightDetailFragment.newInstance(fight), "Detail")
+                                                                                .addToBackStack(null).commit();
+                                                                                */
 
                                                                         return true;
                                                                     }
@@ -247,13 +258,28 @@ public class FightListFragment extends Fragment {
                 }
                 setLoading(false);
             }
-        }, featured, (TBAActivity)this.getActivity()));
+        }, featured, this));
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        setLoading(false);
+        if (User.currentUser().isLoggedIn) {
+            // Log.i("Error", volleyError.getLocalizedMessage());
+            new AlertDialog.Builder(getActivity()).setTitle("Network error").setMessage("Sorry, but your request failed")
+                    .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Do nothing;
+                        }
+                    }).show();
+        }
     }
 
     /**

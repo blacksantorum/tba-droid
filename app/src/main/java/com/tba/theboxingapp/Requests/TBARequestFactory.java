@@ -65,6 +65,34 @@ public class TBARequestFactory {
         return new JsonArrayRequest(url,listener, errorListener);
     }
 
+    public static JsonObjectRequest UserPicksRequest(
+                                                   int page,
+                                                   int userId,
+                                                   Response.Listener<JSONObject> listener,
+                                                   Response.ErrorListener errorListener)
+
+    {
+        String url = BASE_URL + "users/" + userId + "/picks";
+        url = withSessionToken(url);
+        url += "&page=" + String.valueOf(page);
+
+        return new JsonObjectRequest(withSessionToken(url),null,listener, errorListener);
+    }
+
+    public static JsonObjectRequest UserCommentsRequest(
+            int page,
+            int userId,
+            Response.Listener<JSONObject> listener,
+            Response.ErrorListener errorListener)
+
+    {
+        String url = BASE_URL + "users/" + userId + "/comments";
+        url = withSessionToken(url);
+        url += "&page=" + String.valueOf(page);
+
+        return new JsonObjectRequest(withSessionToken(url),null,listener, errorListener);
+    }
+
     public static JsonObjectRequest FightsRequest(
                                                  int page,
                                                  Response.Listener<JSONObject> listener,

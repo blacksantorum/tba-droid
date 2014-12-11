@@ -140,14 +140,21 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         mSlideoutProfileImageView = (NetworkImageView)view.findViewById(R.id.slideoutProfileImageView);
-        // mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl,getImageLoader());
-        mSlideoutProfileTextView = (TextView)view.findViewById(R.id.slideoutProfileTextView);
-        // mSlideoutProfileTextView.setText(User.currentUser().getName());
 
-        OptionItem[] itemArray = new OptionItem[3];
+        if(User.currentUser().profileImageUrl != null && !User.currentUser().profileImageUrl.isEmpty()) {
+            mSlideoutProfileImageView.setImageUrl(User.currentUser().profileImageUrl, getImageLoader());
+        }
+
+        mSlideoutProfileTextView = (TextView)view.findViewById(R.id.slideoutProfileTextView);
+
+        if(User.currentUser().name != null && !User.currentUser().name.isEmpty()) {
+            mSlideoutProfileTextView.setText(User.currentUser().getName());
+        }
+
+        OptionItem[] itemArray = new OptionItem[2];
         itemArray[0] = new OptionItem("Featured", "Upcoming and recent fights",R.drawable.featured);
         itemArray[1] = new OptionItem("Past", "Past fights",R.drawable.recent);
-        itemArray[2] = new OptionItem("Places", "Places to watch boxing", R.drawable.places);
+        // itemArray[2] = new OptionItem("Places", "Places to watch boxing", R.drawable.places);
 
         // mDrawerListView.setBackgroundColor(getResources().getColor(R.color.black));
         mDrawerListView.setAdapter(new MenuAdapter(getActivity(),itemArray));
