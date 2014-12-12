@@ -39,10 +39,14 @@ import com.parse.ParseInstallation;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
+import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterSession;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -97,6 +101,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
@@ -110,6 +115,30 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             }
             if (resultCode == RESULT_CANCELED) {
                 //Write your code if there's no result
+            }
+        }
+
+        if (requestCode == 2) {
+            FightDetailFragment detailFragment = (FightDetailFragment)getFragmentManager().
+                    findFragmentByTag("FIGHT_DETAIL");
+            if (detailFragment.isVisible()) {
+                detailFragment.mAddCommentEditText.clearFocus();
+            }
+            if (resultCode == RESULT_OK) {
+                try {
+                    JSONObject commentObj = new JSONObject(data.getStringExtra("comment"));
+                    Comment comment = new Comment(commentObj);
+
+                    Log.i("Comment date after init", comment.createdAt.toString());
+
+                    if (detailFragment.isVisible()) {
+                        detailFragment.mCommentArrayAdapter.comments.add(comment);
+                        detailFragment.mCommentArrayAdapter.notifyDataSetChanged();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

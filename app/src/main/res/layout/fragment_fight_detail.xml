@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.tba.theboxingapp.FightDetailFragment"
-
+    android:focusableInTouchMode="true"
     >
 
     <LinearLayout
@@ -133,7 +133,6 @@
             android:paddingTop="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="2dp"
-            android:layout_toLeftOf="@+id/sendCommentButton"
             android:layout_toRightOf="@id/commentToolbarUserImageView"
             android:focusable="true"
             />
@@ -145,7 +144,7 @@
             android:background="?android:attr/dividerHorizontal"
             />
         -->
-        
+        <!--
         <ImageButton
             android:id="@id/sendCommentButton"
             android:layout_width="30dp"
@@ -156,6 +155,7 @@
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             />
+         -->
     </RelativeLayout>
     <!--
     <View

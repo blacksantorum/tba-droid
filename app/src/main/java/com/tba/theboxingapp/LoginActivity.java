@@ -77,6 +77,7 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         getActionBar().hide();
         setContentView(R.layout.activity_login);
 
@@ -86,6 +87,7 @@ public class LoginActivity extends Activity implements Response.Listener<JSONObj
             public void success(Result<TwitterSession> result) {
                 JSONObject TBAuser = new JSONObject();
                 try {
+                    // User.currentUser().handle = result.data.getUserName();
                     TBAuser.put("id", result.data.getUserId());
                     TBAuser.put("screen_name", result.data.getUserName());
                 } catch (JSONException e) {

@@ -57,7 +57,7 @@ public class User extends BaseModel {
         try {
             JSONObject userObject = object.getJSONObject("user");
             this.id = userObject.getInt("id");
-            this.handle = ParseTwitterUtils.getTwitter().getScreenName();
+            this.handle = userObject.getString("screen_name");
             this.sessionToken = userObject.getString("session_token");
             this.twitterId = ParseTwitterUtils.getTwitter().getUserId();
             this.profileImageUrl = userObject.getString("img");

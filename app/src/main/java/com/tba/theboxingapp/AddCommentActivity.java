@@ -1,7 +1,10 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -94,9 +97,23 @@ public class AddCommentActivity extends Activity {
         },200);
     }
 
+    private void ThrowVolleyError(VolleyError error)
+    {
+        new AlertDialog.Builder(this).setTitle("Network error").setMessage(error.getLocalizedMessage())
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing;
+                    }
+                }).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mFightId =  getIntent().getIntExtra("FIGHT_ID", 0);
+
         setContentView(R.layout.activity_add_comment);
 
         getActionBar().hide();
@@ -105,7 +122,7 @@ public class AddCommentActivity extends Activity {
         mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                finishActivity(null);
                 InputMethodManager keyboard = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
                 keyboard.hideSoftInputFromWindow(view.getWindowToken(),0);
@@ -117,7 +134,7 @@ public class AddCommentActivity extends Activity {
         mHandleTextView = (TextView)findViewById(R.id.add_comment_user_screen_name);
         mAddCommentButton = (Button)findViewById(R.id.add_comment_button);
 
-
+        /*
         mRequestQueue.add(TBARequestFactory.GetUsers(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
@@ -142,13 +159,15 @@ public class AddCommentActivity extends Activity {
                 volleyError.printStackTrace();
             }
         }));
+        */
 
 
         mAddCommentButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-
+                mAddCommentButton.setEnabled(false);
+                /*
                 String[] words = mCommentContentTextView.getText().toString().split(" ");
 
                 for (String word : words) {
@@ -161,9 +180,9 @@ public class AddCommentActivity extends Activity {
                         }
                     }
                 }
-
-                JSONObject[] tagged = new JSONObject[taggedUsers.size()];
-
+                */
+                JSONObject[] tagged = new JSONObject[0];
+                /*
                 for (int i = 0; i < taggedUsers.size(); i++) {
                     tagged[i] = new JSONObject();
                     try {
@@ -172,23 +191,49 @@ public class AddCommentActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
+                */
 
                 mRequestQueue.add(TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-
+                        Log.i("Created comment obj", jsonObject.toString());
+                        try {
+                            finishActivity(jsonObject.getJSONObject("comment"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }, mFightId, tagged, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
+                }, mFightId, null, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-
+                        ThrowVolleyError(volleyError);
+                        mAddCommentButton.setEnabled(true);
                     }
                 }));
             }
         });
 
         mCommentContentTextView = (EditText)findViewById(R.id.add_comment_edit_text);
-        mCommentContentTextView.addTextChangedListener(new AddCommentTextWatcher());
+        mCommentContentTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (mCommentContentTextView.getText().toString().isEmpty()) {
+                    mAddCommentButton.setEnabled(false);
+                } else {
+                    mAddCommentButton.setEnabled(true);
+                }
+            }
+        });
 
         mTagCandidatesList = (ListView)findViewById(R.id.tag_users);
         mTagCandidatesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -204,9 +249,20 @@ public class AddCommentActivity extends Activity {
                 mImageLoader);
 
         mHandleTextView.setText("@" + User.currentUser().handle);
-
     }
 
+    private void finishActivity(JSONObject object)
+    {
+        Intent returnIntent = new Intent();
+
+        if (object != null) {
+            returnIntent.putExtra("comment", object.toString());
+            setResult(RESULT_OK, returnIntent);
+        } else {
+            setResult(RESULT_CANCELED, returnIntent);
+        }
+        finish();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -225,77 +281,5 @@ public class AddCommentActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public class AddCommentTextWatcher implements TextWatcher {
-
-        char deletedCharacter;
-        String priorText;
-
-        public void afterTextChanged (Editable s) {
-           //  Log.i("After text changed", String.valueOf(priorText));
-            if (s.toString().length() > 0) {
-                mAddCommentButton.setEnabled(true);
-            } else {
-                mAddCommentButton.setEnabled(false);
-            }
-        }
-
-        public void beforeTextChanged (CharSequence s, int start, int count, int after) {
-
-        }
-
-        public void onTextChanged (CharSequence s, int start, int before, int count) {
-
-            // Log.i("onTextChanged Prior text", String.valueOf(priorText));
-            // Log.i("S", String.valueOf(s));
-
-            char realLast = (before == 1 && count == 0) ? s.charAt(start - 1) : s.charAt(start);
-
-            if (realLast == '@') {
-                if (s.length() > 1) {
-                    if (s.charAt(start - 1) == ' ') {
-                        setTaggingMode(true);
-                    } else {
-                        setTaggingMode(false);
-                    }
-                } else {
-                    setTaggingMode(true);
-                }
-            } else {
-                Log.i("Info", "S is " + s.toString());
-                Log.i("Info", "start is " + String.valueOf(start));
-                Log.i("Info", "before is " + String.valueOf(before));
-                Log.i("Info", "count is " + String.valueOf(count));
-                Log.i("realLast", String.valueOf(realLast));
-
-                if (Character.isDigit(realLast) || Character.isLetter(realLast))
-                {
-                    Boolean tagMode = false;
-
-                    String mutableS = s.toString();
-                    mutableS = mutableS.substring(0, mutableS.length() - 1);
-
-                    while (mutableS.length() > 0 && !tagMode) {
-                        Log.i("mutableS", mutableS);
-
-                        char last = mutableS.charAt(mutableS.length() - 1);
-                        if (last == ' ') {
-                            break;
-                        } else if (last == '@') {
-                            tagMode = true;
-                        } else if (!Character.isDigit(mutableS.charAt(mutableS.length() - 1)) &&
-                                !Character.isLetter(mutableS.charAt(mutableS.length() - 1))) {
-                            break;
-                        } else {
-                            mutableS = mutableS.substring(0, mutableS.length() - 1);
-                        }
-                    }
-                    setTaggingMode(tagMode);
-                } else {
-                    setTaggingMode(false);
-                }
-            }
-        }
     }
 }

@@ -165,6 +165,7 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
     {
         if (mFightListAdapter == null) {
             mFightListAdapter = new FightListAdapter(getActivity());
+            mExpandableListView.setAdapter(mFightListAdapter);
         }
 
         mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
@@ -218,8 +219,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                             e.printStackTrace();
                         }
                     }
-
-                    mExpandableListView.setAdapter(mFightListAdapter);
                     for(int i=0; i < mFightListAdapter.getGroupCount(); i++) {
                         mExpandableListView.expandGroup(i);
                     }
@@ -232,7 +231,7 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
 
 
                                                                         fragmentManager.beginTransaction()
-                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight)).
+                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight), "FIGHT_DETAIL").
                                                                                 addToBackStack(null).commit();
                                                                         /*
                                                                         fragmentManager.beginTransaction()
