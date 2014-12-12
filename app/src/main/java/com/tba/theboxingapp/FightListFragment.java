@@ -371,6 +371,20 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                 final TextView boxerBTextView = (TextView) rowView.findViewById(R.id.boxerBTextView);
                 boxerBTextView.setText(fight.boxerB.fullName);
 
+                ImageView commentsIcon = (ImageView)rowView.findViewById(R.id.commentsIcon);
+                TextView commentsCountTextView = (TextView)rowView.findViewById(R.id.commentsCountTextView);
+
+                Log.i("Fight comment count", String.valueOf(fight.commentCount));
+
+                if (fight.commentCount > 0) {
+                    commentsIcon.setVisibility(View.VISIBLE);
+                    commentsCountTextView.setVisibility(View.VISIBLE);
+                    commentsCountTextView.setText(String.valueOf(fight.commentCount));
+                } else {
+                    commentsIcon.setVisibility(View.INVISIBLE);
+                    commentsCountTextView.setVisibility(View.INVISIBLE);
+                }
+
                 TextView resultTextView = (TextView) rowView.findViewById(R.id.resultTextView);
                 if (fight.state == Fight.State.PAST) {
                     if (fight.winnerId != 0) {

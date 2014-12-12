@@ -29,12 +29,20 @@ public class Fight extends BaseModel {
     public int rounds;
     public String location;
 
+    public int commentCount;
+
     public Fight (JSONObject object) {
         Log.v("Fight", object.toString());
         try {
             this.id = object.getInt("id");
             this.location = object.getString("location");
             this.winnerId = object.getInt("winner_id");
+
+            if (object.has("comments_count")) {
+                if (!object.isNull("comments_count")) {
+                    this.commentCount = object.getInt("comments_count");
+                }
+            }
 
             if (object.has("users_pick")) {
                 if (!object.isNull("users_pick")) {
