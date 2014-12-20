@@ -30,6 +30,7 @@ import com.tba.theboxingapp.Requests.TBARequestFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -54,6 +55,14 @@ public class UserDetailFragment extends Fragment {
     private int mUserId;
     private String mUserFullName;
     private String mUserProfileUrl;
+
+    private boolean picksHasNext;
+    private boolean commentsHasnext;
+
+    private boolean isLoading;
+
+    private int picksPage = 1;
+    private int commentsPage = 1;
 
     private NetworkImageView mUserProfileImageView;
     private TextView mUserProfileNameTextView;
@@ -152,10 +161,17 @@ public class UserDetailFragment extends Fragment {
         mLoadActivityTextView.setText("Loading picks...");
         mLoadActivityTextView.setVisibility(View.VISIBLE);
         mDisplayedActivity = DisplayedActivity.DISPLAY_PICKS;
-        mRequestQueue.add(TBARequestFactory.UserPicksRequest(new Response.Listener<JSONArray>() {
+
+        mRequestQueue.add(TBARequestFactory.UserPicksRequest(picksPage, mUserId, new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(JSONArray array) {
-                Log.i("UserDetailPicks",array.toString());
+            public void onResponse(JSONObject jsonObject) {
+                JSONArray array = null;
+                try {
+                    array = jsonObject.getJSONArray("picks");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 UserActivityPrediction[] predictions = new UserActivityPrediction[array.length()];
 
                 for (int i = 0; i < array.length(); i++) {
@@ -176,8 +192,14 @@ public class UserDetailFragment extends Fragment {
                 mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
                 mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
+
+                try {
+                    picksHasNext = jsonObject.getBoolean("picks_count");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        },mUserId, (TBAActivity)getActivity()));
+        }, (TBAActivity)getActivity()));
     }
 
     private void loadComments()
@@ -189,9 +211,16 @@ public class UserDetailFragment extends Fragment {
         mLoadActivityTextView.setText("Loading comments...");
         mLoadActivityTextView.setVisibility(View.VISIBLE);
 
-        mRequestQueue.add(TBARequestFactory.UserCommentsRequest(new Response.Listener<JSONArray>() {
+        mRequestQueue.add(TBARequestFactory.UserCommentsRequest(commentsPage, mUserId, new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(JSONArray array) {
+            public void onResponse(JSONObject jsonObject) {
+                JSONArray array = null;
+                try {
+                    array = jsonObject.getJSONArray("comments");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 Log.i("UserDetailComments", array.toString());
                 UserActivityComment[] comments = new UserActivityComment[array.length()];
 
@@ -213,8 +242,14 @@ public class UserDetailFragment extends Fragment {
                 mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
                 mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
+
+                try {
+                    commentsHasnext = jsonObject.getBoolean("comments_count");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        }, mUserId, (TBAActivity)getActivity()));
+        }, (TBAActivity)getActivity()));
     }
 
     // TODO: Rename method, update argument and hook method into UI event

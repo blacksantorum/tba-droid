@@ -34,17 +34,38 @@
             android:gravity="center"
             />
     </LinearLayout>
-
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/resultTextView"
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="VS"
-        android:gravity = "center_horizontal"
         >
-    </TextView>
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/resultTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VS"
+            android:layout_centerHorizontal="true"
+        />
+        <ImageView
+            android:id="@+id/commentsIcon"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/comments"
+            android:layout_below="@id/resultTextView"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            />
+        <TextView
+            android:id="@+id/commentsCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="0dp"
+            android:layout_below="@id/commentsIcon"
+            android:textColor="@android:color/black"
+            />
+
+    </RelativeLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"

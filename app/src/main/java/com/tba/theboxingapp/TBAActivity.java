@@ -28,6 +28,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.internal.id;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.parse.LogInCallback;
@@ -38,8 +39,14 @@ import com.parse.ParseInstallation;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
+import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterSession;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class TBAActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -50,6 +57,8 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+
+    public static final String PREFS_NAME = "TBAPref";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -65,7 +74,10 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUpDrawer();
-        showLogin();
+
+        if (User.currentUser().id == 0) {
+            showLogin();
+        }
     }
 
     private void showLogin()
@@ -89,6 +101,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
@@ -102,6 +115,30 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
             }
             if (resultCode == RESULT_CANCELED) {
                 //Write your code if there's no result
+            }
+        }
+
+        if (requestCode == 2) {
+            FightDetailFragment detailFragment = (FightDetailFragment)getFragmentManager().
+                    findFragmentByTag("FIGHT_DETAIL");
+            if (detailFragment.isVisible()) {
+                detailFragment.mAddCommentEditText.clearFocus();
+            }
+            if (resultCode == RESULT_OK) {
+                try {
+                    JSONObject commentObj = new JSONObject(data.getStringExtra("comment"));
+                    Comment comment = new Comment(commentObj);
+
+                    Log.i("Comment date after init", comment.createdAt.toString());
+
+                    if (detailFragment.isVisible()) {
+                        detailFragment.mCommentArrayAdapter.comments.add(comment);
+                        detailFragment.mCommentArrayAdapter.notifyDataSetChanged();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -185,9 +222,15 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         if (id == R.id.action_log_out) {
             User.clear();
 
+           // Twitter.logOut();
+
             SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
-            editor.remove("User");
+            editor.remove("Handle");
+            editor.remove("Name");
+            editor.remove("ImgUrl");
+            editor.remove("TwitterId");
+            editor.remove("SessionToken");
             editor.commit();
 
             showLogin();
@@ -200,6 +243,7 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     @Override
     public void onErrorResponse(VolleyError volleyError) {
         if (User.currentUser().isLoggedIn) {
+            // Log.i("Error", volleyError.getLocalizedMessage());
             new AlertDialog.Builder(this).setTitle("Network error").setMessage("Sorry, but your request failed")
                     .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                         @Override

@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -26,7 +27,7 @@ import java.lang.reflect.Method;
 
 public class TBARequestFactory {
 
-    private static final String BASE_URL = "http://www.theboxingapp.com/api/v1/";
+    private static final String BASE_URL = "http://www.theboxingapp.com/api/v2/";
 
     private static String withSessionToken(String url)
     {
@@ -64,6 +65,57 @@ public class TBARequestFactory {
         return new JsonArrayRequest(url,listener, errorListener);
     }
 
+    public static JsonObjectRequest UserPicksRequest(
+                                                   int page,
+                                                   int userId,
+                                                   Response.Listener<JSONObject> listener,
+                                                   Response.ErrorListener errorListener)
+
+    {
+        String url = BASE_URL + "users/" + userId + "/picks";
+        url = withSessionToken(url);
+        url += "&page=" + String.valueOf(page);
+
+        return new JsonObjectRequest(withSessionToken(url),null,listener, errorListener);
+    }
+
+    public static JsonObjectRequest UserCommentsRequest(
+            int page,
+            int userId,
+            Response.Listener<JSONObject> listener,
+            Response.ErrorListener errorListener)
+
+    {
+        String url = BASE_URL + "users/" + userId + "/comments";
+        url = withSessionToken(url);
+        url += "&page=" + String.valueOf(page);
+
+        return new JsonObjectRequest(withSessionToken(url),null,listener, errorListener);
+    }
+
+    public static JsonObjectRequest FightsRequest(
+                                                 int page,
+                                                 Response.Listener<JSONObject> listener,
+                                                 boolean featured,
+                                                 Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "fights/";
+
+        if (featured) {
+            url += "future";
+        } else {
+            url += "past";
+        }
+
+        url += "?session_token=" + User.currentUser().sessionToken;
+        url += "&page=" + String.valueOf(page);
+
+        Log.d("page",url);
+
+        return new JsonObjectRequest(url,null,listener, errorListener);
+    }
+
+    /*
     public static JsonArrayRequest FightsRequest(Response.Listener<JSONArray> listener,
                                                  boolean featured, Response.ErrorListener errorListener)
     {
@@ -80,6 +132,26 @@ public class TBARequestFactory {
         Log.i("url",url);
 
         return new JsonArrayRequest(url,listener, errorListener);
+    }
+    */
+
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONObject[] tagged ,String comment,
+                                                       Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "fights/" + fightId + "/comments";
+
+        JSONObject params = new JSONObject();
+
+        try {
+            JSONObject commentObject = new JSONObject();
+            commentObject.put("users", tagged);
+            commentObject.put("body", comment);
+            params.put("comment", commentObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }
 
     public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, String comment,
@@ -154,5 +226,10 @@ public class TBARequestFactory {
         String url = BASE_URL + "users/" + userId + "/picks";
 
         return new JsonArrayRequest(withSessionToken(url),listener, errorListener);
+    }
+
+    public static JsonArrayRequest GetUsers(Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
+        String url = BASE_URL + "users";
+        return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
     }
 }

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * Created by christibbs on 9/16/14.
@@ -39,7 +40,9 @@ public class Prediction extends BaseModel {
             userId = object.getInt("user_id");
 
             String updatedAtDateString = object.getString("updated_at");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            updatedAtDateString = updatedAtDateString.substring(0, updatedAtDateString.length() - 5);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             this.updatedAt = sdf.parse(updatedAtDateString);
 
             winnerId = object.getInt("winner_id");

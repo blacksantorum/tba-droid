@@ -3,6 +3,7 @@ package com.tba.theboxingapp;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -85,14 +86,11 @@ public class FightDetailFragment extends Fragment {
 
     private TextView mWeightClassLabel;
     private ListView mCommentsListView;
-    private CommentArrayAdapter mCommentArrayAdapter;
+    public CommentArrayAdapter mCommentArrayAdapter;
 
     private RelativeLayout mCommentsLayout;
     private NetworkImageView mCommentToolbarImageView;
-    private EditText mAddCommentEditText;
-    private ImageButton mSendCommentButton;
-
-    private Button mChangeSortLabel;
+    public EditText mAddCommentEditText;
 
     private ProgressBar mCommentsProgressBar;
     private TextView mCommentsLoadingTextView;
@@ -161,16 +159,11 @@ public class FightDetailFragment extends Fragment {
             Collections.sort(mComments, new DateComparator());
         }
 
-        Comment[] commentArray = new Comment[mComments.size()];
-        for (int i = 0; i < mComments.size(); i ++) {
-            commentArray[i] = mComments.get(i);
-        }
-
         // if (mCommentArrayAdapter == null) {
-            mCommentArrayAdapter = new CommentArrayAdapter(getActivity(),commentArray);
+            mCommentArrayAdapter = new CommentArrayAdapter(getActivity(),mComments);
             mCommentsListView.setAdapter(mCommentArrayAdapter);
        //  }
-        mCommentArrayAdapter.comments = commentArray;
+        mCommentArrayAdapter.comments = mComments;
         mCommentArrayAdapter.notifyDataSetChanged();
         mCommentsLayout.setVisibility(View.VISIBLE);
         mCommentsProgressBar.setVisibility(View.INVISIBLE);
@@ -205,36 +198,13 @@ public class FightDetailFragment extends Fragment {
         mCommentToolbarImageView.setImageUrl(User.currentUser().profileImageUrl,
                 TBAVolley.getInstance(getActivity()).getImageLoader());
 
-        mSendCommentButton = (ImageButton)v.findViewById(R.id.sendCommentButton);
-
-        mSendCommentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mAddCommentEditText.getText().length() > 0) {
-                    TBAVolley.getInstance(getActivity()).getRequestQueue().add(
-                        TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject object) {
-                                mAddCommentEditText.setText("");
-                                mAddCommentEditText.clearFocus();
-                                fetchComments(false);
-                                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
-                                        Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(mAddCommentEditText.getWindowToken(), 0);
-                            }
-                        },mFightId,mAddCommentEditText.getText().toString(), (TBAActivity)getActivity())
-                    );
-                }
-            }
-        });
-
         mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
         mCommentsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
 
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.i("Comments","Clicked");
-                Comment comment = mCommentArrayAdapter.comments[i];
+                Comment comment = mCommentArrayAdapter.comments.get(i);
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, UserDetailFragment.newInstance(comment.user.id, comment.user.name, comment.user.profileImageUrl)).
@@ -245,6 +215,19 @@ public class FightDetailFragment extends Fragment {
 
         //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
         mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
+        mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    Intent intent = new Intent(getActivity(), AddCommentActivity.class);
+                    intent.putExtra("FIGHT_ID", mFightId);
+                    getActivity().startActivityForResult(intent, 2);
+                    if (mAddCommentEditText.hasFocus()) {
+
+                    }
+                }
+            }
+        });
         /*
         mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,19 +261,12 @@ public class FightDetailFragment extends Fragment {
 
         mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
 
-        mChangeSortLabel = (Button)v.findViewById(R.id.changeSortLabel);
-        mChangeSortLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleMode();
-            }
-        });
-
         fetchFight();
         return v;
     }
 
     private void updatePickPercentages() {
+        /*
         Thread th = new Thread(new Runnable() {
             int i = 0;
             public void run() {
@@ -317,6 +293,9 @@ public class FightDetailFragment extends Fragment {
             }
         });
         th.start();
+        */
+        mBoxerAPercentageLabel.setText(mBoxerAPickPercentage + "%");
+        mBoxerBPercentageLabel.setText(mBoxerBPickPercentage + "%");
     }
 
     private void fetchFight()
@@ -370,20 +349,6 @@ public class FightDetailFragment extends Fragment {
 
             }
         },mFightId, (TBAActivity)getActivity()));
-    }
-
-
-
-    private void toggleMode() {
-        if (mCommentMode == CommentMode.SHOW_NEW) {
-            mCommentMode = CommentMode.SHOW_TOP;
-            mChangeSortLabel.setText("Show new");
-        }
-        else {
-            mCommentMode = CommentMode.SHOW_NEW;
-            mChangeSortLabel.setText("Show top");
-        }
-        fetchComments(true);
     }
 
     private void fetchComments(final boolean onMainQueue)
@@ -470,9 +435,9 @@ public class FightDetailFragment extends Fragment {
 
     public class CommentArrayAdapter extends ArrayAdapter<Comment> {
         private final Context context;
-        public Comment[] comments;
+        public List<Comment> comments;
 
-        public CommentArrayAdapter(Context context, Comment[] comments) {
+        public CommentArrayAdapter(Context context, List<Comment> comments) {
             super(context, R.layout.fight_comment_detail, comments );
             this.comments = comments;
             this.context = context;
@@ -480,7 +445,7 @@ public class FightDetailFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final Comment comment = comments[position];
+            final Comment comment = comments.get(position);
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
@@ -516,10 +481,19 @@ public class FightDetailFragment extends Fragment {
             final TextView likesLabel = (TextView)v.findViewById(R.id.likesLabel);
             TextView deleteButton = (TextView)v.findViewById(R.id.deleteButton);
 
-            userImageView.setImageUrl(comment.user.profileImageUrl,
-                    TBAVolley.getInstance(getActivity().getApplicationContext()).getImageLoader());
+            if (comment.user.profileImageUrl != null) {
+                userImageView.setImageUrl(comment.user.profileImageUrl,
+                        TBAVolley.getInstance(getActivity().getApplicationContext()).getImageLoader());
+            } else {
+                userImageView.setImageDrawable(getResources().getDrawable(R.drawable.places));
+            }
+
+
             userHandleLabel.setText(comment.user.handle);
             commentContentLabel.setText(comment.body);
+
+            Log.i("Comment date in cell", comment.createdAt.toString());
+
             timeAgoLabel.setText(prettyTimeAgo(comment.createdAt));
             likesLabel.setText(new String("" +comment.likes));
             if (User.currentUser() == comment.user) {
@@ -556,10 +530,16 @@ public class FightDetailFragment extends Fragment {
         private String prettyTimeAgo(Date date)
         {
             Date currentDate = new Date();
-            long currentDateLong = currentDate.getTime();
-            long oldDate = date.getTime();
 
-            return PrettyTime.getTimeAgo(oldDate);
+            Log.i("Current date", currentDate.toString());
+
+            long currentDateLong = currentDate.getTime();
+            Log.i("Current date long", String.valueOf(currentDateLong));
+
+            long oldDate = date.getTime();
+            Log.i("Old date long", String.valueOf(oldDate));
+
+            return PrettyTime.getTimeAgo(oldDate + 21600000);
         }
     }
 }

@@ -1,9 +1,13 @@
 package com.tba.theboxingapp.Model;
 
+import android.content.SharedPreferences;
+
 import com.parse.ParseTwitterUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.SharedPreferences;
 
 import java.util.Arrays;
 
@@ -37,12 +41,23 @@ public class User extends BaseModel {
         return  current;
     }
 
+    public void updateWithSharedPreferences(SharedPreferences preferences)
+    {
+        this.handle = preferences.getString("Handle","");
+        this.name = preferences.getString("Name","");
+        this.profileImageUrl = preferences.getString("ImgUrl","");
+        this.twitterId = preferences.getString("TwitterId","");
+        this.sessionToken =  preferences.getString("SessionToken","");
+        this.id = preferences.getInt("Id",0);
+        this.currentUser().isLoggedIn = true;
+    }
+
     public void updateWithLoginResponse(JSONObject object)
     {
         try {
             JSONObject userObject = object.getJSONObject("user");
             this.id = userObject.getInt("id");
-            this.handle = ParseTwitterUtils.getTwitter().getScreenName();
+            this.handle = userObject.getString("screen_name");
             this.sessionToken = userObject.getString("session_token");
             this.twitterId = ParseTwitterUtils.getTwitter().getUserId();
             this.profileImageUrl = userObject.getString("img");
