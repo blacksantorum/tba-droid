@@ -1,25 +1,18 @@
 package com.tba.theboxingapp.Requests;
 
-import android.location.GpsStatus;
-import android.net.sip.SipSession;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -231,5 +224,14 @@ public class TBARequestFactory {
     public static JsonArrayRequest GetUsers(Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
         String url = BASE_URL + "users";
         return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
+    }
+
+    public static JsonObjectRequest NotificationRequest(int page, Response.Listener<JSONObject> listener,
+                                                        Response.ErrorListener errorListener) {
+
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "notifications/";
+
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url), null, listener, errorListener);
+
     }
 }
