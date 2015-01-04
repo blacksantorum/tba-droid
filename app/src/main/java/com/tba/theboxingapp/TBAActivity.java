@@ -86,6 +86,19 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         startActivityForResult(intent, 1);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0){
+            getFragmentManager().popBackStack();
+            Log.i("pop", "this pop");
+        }
+        // Default action on back pressed
+        else {
+            Log.i("pop", "super pop");
+            super.onBackPressed();
+        }
+    }
+
     private void setUpDrawer()
     {
         setContentView(R.layout.activity_tba);
