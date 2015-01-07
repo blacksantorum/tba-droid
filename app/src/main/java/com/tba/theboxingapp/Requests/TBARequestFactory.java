@@ -234,4 +234,13 @@ public class TBARequestFactory {
         String url = BASE_URL + "users";
         return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
     }
+
+    public static JsonObjectRequest NotificationRequest(int page, Response.Listener<JSONObject> listener,
+                                                        Response.ErrorListener errorListener) {
+
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "notifications/";
+
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url), null, listener, errorListener);
+
+    }
 }
