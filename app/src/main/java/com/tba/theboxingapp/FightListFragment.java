@@ -65,7 +65,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
     private RequestQueue mRequestQueue;
     private ExpandableListView mExpandableListView;
     private ProgressBar mLoadingFightsProgress;
-    private TextView mLoadingFightsTextView;
 
     private View mFooterView;
 
@@ -132,18 +131,11 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                 if (savedView != null) {
                     if (savedView.getParent() != null) {
                         ((ViewGroup) savedView.getParent()).removeView(savedView);
-
-                        Log.e("View", "Loading saved view!");
-
                         v = savedView;
                     } else {
                         v = savedView;
                     }
-                } else {
-                    Log.e("View", "Saved view is null!");
                 }
-            } else {
-                Log.e("View", "mViewReference is null!");
             }
         } else {
 
@@ -175,7 +167,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
             });
 
             mLoadingFightsProgress = (ProgressBar) v.findViewById(R.id.loadFightsProgress);
-            mLoadingFightsTextView = (TextView) v.findViewById(R.id.loadFightsTextView);
 
             mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                 @Override
@@ -222,7 +213,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
         if (page == 1) {
             mExpandableListView.setVisibility(View.INVISIBLE);
             mLoadingFightsProgress.setVisibility(View.VISIBLE);
-            mLoadingFightsTextView.setVisibility(View.VISIBLE);
         }
 
         boolean featured = (mListType == ListType.FEATURED);
@@ -296,7 +286,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                     if (page == 2) {
                         mExpandableListView.setVisibility(View.VISIBLE);
                         mLoadingFightsProgress.setVisibility(View.INVISIBLE);
-                        mLoadingFightsTextView.setVisibility(View.INVISIBLE);
                     }
 
 
