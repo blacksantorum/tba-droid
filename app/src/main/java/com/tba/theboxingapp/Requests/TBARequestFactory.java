@@ -135,7 +135,7 @@ public class TBARequestFactory {
     }
     */
 
-    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONObject[] tagged ,String comment,
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONArray tagged ,String comment,
                                                        Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "/comments";
@@ -150,6 +150,8 @@ public class TBARequestFactory {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        Log.i("Comment obj", params.toString());
 
         return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }

@@ -182,31 +182,39 @@ public class AddCommentActivity extends Activity {
             @Override
             public void onClick(View view) {
                 mAddCommentButton.setEnabled(false);
-                /*
+
+                taggedUsers.clear();
+
                 String[] words = mCommentContentTextView.getText().toString().split(" ");
 
                 for (String word : words) {
-                    if (word.charAt(0) == '@') {
-                        for (User user : allUsers) {
-                            if (word.substring(1) == user.handle) {
-                                taggedUsers.add(user);
-                                break;
+                    if (word.length() > 0) {
+
+                        Log.i("word",word);
+
+                        if (word.charAt(0) == '@') {
+                            for (User user : allUsers) {
+                                if (word.substring(1).equals(user.handle)) {
+                                    taggedUsers.add(user);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-                */
-                JSONObject[] tagged = new JSONObject[0];
-                /*
+
+                JSONArray tagged = new JSONArray();
+
                 for (int i = 0; i < taggedUsers.size(); i++) {
-                    tagged[i] = new JSONObject();
+
+                    JSONObject o = new JSONObject();
                     try {
-                        tagged[i].put("id", String.valueOf(taggedUsers.get(i).id));
+                        o.put("id", String.valueOf(taggedUsers.get(i).id));
+                        tagged.put(o);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-                */
 
                 mRequestQueue.add(TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
                     @Override
@@ -218,7 +226,7 @@ public class AddCommentActivity extends Activity {
                             e.printStackTrace();
                         }
                     }
-                }, mFightId, null, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
+                }, mFightId, tagged, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         ThrowVolleyError(volleyError);
