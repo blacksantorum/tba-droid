@@ -57,6 +57,8 @@ public class AddCommentActivity extends Activity {
     EditText mCommentContentTextView;
     ListView mTagCandidatesList;
 
+    String pendingTag;
+
     public void setTaggingMode(boolean taggingMode) {
         this.taggingMode = taggingMode;
         if (this.taggingMode) {
@@ -78,11 +80,15 @@ public class AddCommentActivity extends Activity {
 
 
     List<User> allUsers = new ArrayList<User>();
+
+    List<User> filteredUsers = new ArrayList<User>();
+
     List<User> taggedUsers = new ArrayList<User>();
 
     @Override
     protected  void onResume() {
         super.onResume();
+
         mCommentContentTextView.requestFocus();
 
         mCommentContentTextView.postDelayed(new Runnable() {
@@ -100,6 +106,16 @@ public class AddCommentActivity extends Activity {
     private void ThrowVolleyError(VolleyError error)
     {
         new AlertDialog.Builder(this).setTitle("Network error").setMessage(error.getLocalizedMessage())
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing;
+                    }
+                }).show();
+    }
+
+    private void wordAlert(String text) {
+        new AlertDialog.Builder(this).setTitle("Word").setMessage(text)
                 .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -134,7 +150,6 @@ public class AddCommentActivity extends Activity {
         mHandleTextView = (TextView)findViewById(R.id.add_comment_user_screen_name);
         mAddCommentButton = (Button)findViewById(R.id.add_comment_button);
 
-        /*
         mRequestQueue.add(TBARequestFactory.GetUsers(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
@@ -142,13 +157,15 @@ public class AddCommentActivity extends Activity {
                     try {
                         JSONObject userDict = (JSONObject) jsonArray.get(i);
                         User u = new User(userDict.getJSONObject("user"));
-                        allUsers.add(u);
+                        if (u.id != User.currentUser().id) {
+                            allUsers.add(u);
+                        }
                     } catch(JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
-                mAdapter = new TagCandidateListAdapter(getApplicationContext(), allUsers);
+                mAdapter = new TagCandidateListAdapter(getApplicationContext(), filteredUsers);
                 mTagCandidatesList.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 // mTagCandidatesList.setVisibility(View.VISIBLE);
@@ -159,8 +176,6 @@ public class AddCommentActivity extends Activity {
                 volleyError.printStackTrace();
             }
         }));
-        */
-
 
         mAddCommentButton.setOnClickListener(new View.OnClickListener() {
 
@@ -232,6 +247,50 @@ public class AddCommentActivity extends Activity {
                 } else {
                     mAddCommentButton.setEnabled(true);
                 }
+
+                String text = mCommentContentTextView.getText().toString().substring(0, mCommentContentTextView.getSelectionEnd());
+
+                int i = 0;
+
+                while ((mCommentContentTextView.getText().length() > mCommentContentTextView.getSelectionEnd() + i) &&
+                        (mCommentContentTextView.getText().charAt(mCommentContentTextView.getSelectionEnd() + i) != ' ')) {
+                    text += Character.toString(mCommentContentTextView.getText().charAt(mCommentContentTextView.getSelectionEnd() + i));
+                    i++;
+                }
+
+                // wordAlert("Text: " + text + ", length: " + String.valueOf(text.length()) );
+
+                if (isTaggedText(text)) {
+                    setTaggingMode(true);
+
+                    String commentText = mCommentContentTextView.getText().toString();
+
+                    int j = mCommentContentTextView.getSelectionEnd();
+
+                    while (j - 1 > 0 && commentText.charAt(j - 1) != '@') {
+                        j--;
+                    }
+
+                    // wordAlert(String.valueOf(j));
+
+                    partialCandidate = "";
+
+                    while (commentText.length() > j) {
+                        if (commentText.charAt(j) == ' ') {
+                            break;
+                        } else {
+                            partialCandidate += String.valueOf(commentText.charAt(j));
+                            j++;
+                        }
+                    }
+
+                    filterUsers();
+
+                    // wordAlert("Partial candidate: " + partialCandidate + ", length: " + String.valueOf(partialCandidate.length()));
+
+                } else {
+                    setTaggingMode(false);
+                }
             }
         });
 
@@ -243,12 +302,60 @@ public class AddCommentActivity extends Activity {
             }
         });
 
+        mTagCandidatesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                User u = mAdapter.users[position];
+                appendHandle(u);
+            }
+        });
+
         mNameTextView.setText(User.currentUser().name);
 
         mUserImageView.setImageUrl(User.currentUser().profileImageUrl,
                 mImageLoader);
 
         mHandleTextView.setText("@" + User.currentUser().handle);
+    }
+
+    private void filterUsers()
+    {
+        filteredUsers.clear();
+
+        for (int i = 0; i < allUsers.size() ; i++) {
+            User u = allUsers.get(i);
+
+            if (u.getHandle().contains(partialCandidate) || partialCandidate.length() == 0) {
+                filteredUsers.add(u);
+            }
+        }
+
+        mAdapter.users = filteredUsers.toArray(new User[filteredUsers.size()]);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void appendHandle(User user)
+    {
+        int j = mCommentContentTextView.getSelectionEnd();
+
+        String commentText = mCommentContentTextView.getText().toString();
+
+        while (commentText.length() > j) {
+            if (commentText.charAt(j) == ' ') {
+                j--;
+                break;
+            } else {
+                j++;
+            }
+        }
+
+        int i = j;
+
+        while (i - 1 > 0 && commentText.charAt(i - 1) != '@') {
+            i--;
+        }
+
+        mCommentContentTextView.getText().replace(i, j, user.getHandle() + " ");
     }
 
     private void finishActivity(JSONObject object)
@@ -269,6 +376,37 @@ public class AddCommentActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add_comment, menu);
         return true;
+    }
+
+    private boolean isTaggedText(String text)
+    {
+        if (text.length() == 0) {
+            return false;
+        } else if (text.charAt(text.length() - 1) == ' ') {
+            return false;
+        }
+        else if (text.length() == 1) {
+            if (text.charAt(0) == '@') {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if ((text.length() == 2) && (text.charAt(0) == '@')) {
+                return true;
+            }
+            if (text.charAt(text.length() - 2) == ' ') {
+                if (text.charAt(text.length() - 1) == '@') {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else {
+                String newText = text.substring(0, text.length() - 1);
+                return isTaggedText(newText);
+            }
+        }
     }
 
     @Override
