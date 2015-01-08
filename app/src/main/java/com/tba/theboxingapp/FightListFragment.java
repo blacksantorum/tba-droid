@@ -270,7 +270,7 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
 
 
                                                                         fragmentManager.beginTransaction()
-                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight), "FIGHT_DETAIL").
+                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight, 0), "FIGHT_DETAIL").
                                                                                 addToBackStack(null).commit();
                                                                         /*
                                                                         fragmentManager.beginTransaction()

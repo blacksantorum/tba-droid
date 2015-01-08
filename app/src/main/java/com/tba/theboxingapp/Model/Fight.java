@@ -31,6 +31,11 @@ public class Fight extends BaseModel {
 
     public int commentCount;
 
+    public Fight (int fightId)
+    {
+        id = fightId;
+    }
+
     public Fight (JSONObject object) {
         Log.v("Fight", object.toString());
         try {

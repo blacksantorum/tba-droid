@@ -1,20 +1,34 @@
 package com.tba.theboxingapp;
 
 
+import android.app.AlertDialog;
+import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.tba.theboxingapp.Adapters.NotificationListAdapter;
+import com.tba.theboxingapp.Model.Fight;
 import com.tba.theboxingapp.Model.Notification;
+import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
+import com.tba.theboxingapp.Requests.TBARequestFactory;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -26,7 +40,7 @@ import java.util.List;
  * Use the {@link NotificationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NotificationFragment extends Fragment {
+public class NotificationFragment extends Fragment implements Response.ErrorListener {
 
     /**
      * Use this factory method to create a new instance of
@@ -51,6 +65,8 @@ public class NotificationFragment extends Fragment {
     private boolean hasNext = true;
     private boolean isLoading = false;
 
+    private List<Notification> unreadNotifications = new ArrayList<Notification>();
+
     private NotificationListAdapter mNotificationsAdapter;
 
     private void setLoading(boolean loading) {
@@ -74,7 +90,7 @@ public class NotificationFragment extends Fragment {
         loadNotifications();
     }
 
-    public static NotificationFragment newInstance(String param1, String param2) {
+    public static NotificationFragment newInstance() {
         NotificationFragment fragment = new NotificationFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -105,17 +121,23 @@ public class NotificationFragment extends Fragment {
                 if (savedView != null) {
                     if (savedView.getParent() != null) {
                         ((ViewGroup) savedView.getParent()).removeView(savedView);
+
+                        Log.e("View", "Loading saved view!");
+
                         v = savedView;
                     } else {
+                        Log.e("View", "Loading saved view!");
+
                         v = savedView;
                     }
                 }
             }
         } else {
 
-            mViewReference = new SoftReference<View>(v);
+            Log.e("View", "Creating view!");
 
             v = inflater.inflate(R.layout.fragment_notification, container, false);
+            mViewReference = new SoftReference<View>(v);
 
             mLoadingNotificationsProgress = (ProgressBar) v.findViewById(R.id.loadNotificationProgress);
             mListView = (ListView) v.findViewById(R.id.notificationsList);
@@ -139,6 +161,19 @@ public class NotificationFragment extends Fragment {
                 }
             });
 
+            mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Notification n = mNotificationsAdapter.notifications.get(position);
+
+                    FragmentManager fragmentManager = getFragmentManager();
+
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.container, FightDetailFragment.newInstance(new Fight(n.fightId), n.commentId), "FIGHT_DETAIL").
+                            addToBackStack(null).commit();
+                }
+            });
+
             if (mNotificationsAdapter == null) {
                 setNotificationListAdapter();
             }
@@ -151,6 +186,87 @@ public class NotificationFragment extends Fragment {
 
     private void loadNotifications()
     {
+        if (page == 1) {
+            mListView.setVisibility(View.INVISIBLE);
+            mLoadingNotificationsProgress.setVisibility(View.VISIBLE);
+        }
 
+        setLoading(true);
+
+        mRequestQueue.add(TBARequestFactory.NotificationRequest(page++, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    int notificationsCount = jsonObject.getInt("notifications_count");
+                    JSONArray notificationsArray = jsonObject.getJSONArray("notifications");
+
+                    hasNext = mNotificationsAdapter.notifications.size() + notificationsArray.length() < notificationsCount;
+
+                    unreadNotifications.clear();
+
+                    for (int i = 0; i < notificationsArray.length(); i++) {
+                        Notification n = new Notification(notificationsArray.getJSONObject(i));
+                        mNotificationsAdapter.notifications.add(n);
+
+                        if (!n.seen) {
+                            unreadNotifications.add(n);
+                        }
+                    }
+
+                    mNotificationsAdapter.notifyDataSetChanged();
+
+                    Log.i("Unread notifications", String.valueOf(unreadNotifications.size()));
+
+                    if (unreadNotifications.size() > 0) {
+
+                        mRequestQueue.add(TBARequestFactory.MarkNotificationsRequest(unreadNotifications, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject jsonObject) {
+                                for (int i = 0; i < unreadNotifications.size(); i++) {
+                                    for (int j = 0; j < mNotificationsAdapter.notifications.size(); j++) {
+                                        if (mNotificationsAdapter.notifications.get(j).id == unreadNotifications.get(i).id) {
+                                            mNotificationsAdapter.notifications.get(j).seen = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                mNotificationsAdapter.notifyDataSetChanged();
+                                unreadNotifications.clear();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                volleyError.printStackTrace();
+                            }
+                        }));
+                    }
+
+                    setLoading(false);
+
+                    if (page == 2) {
+                        mListView.setVisibility(View.VISIBLE);
+                        mLoadingNotificationsProgress.setVisibility(View.INVISIBLE);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, this));
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        setLoading(false);
+        if (User.currentUser().isLoggedIn) {
+            // Log.i("Error", volleyError.getLocalizedMessage());
+            new AlertDialog.Builder(getActivity()).setTitle("Network error").setMessage("Sorry, but your request failed")
+                    .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Do nothing;
+                        }
+                    }).show();
+        }
     }
 }

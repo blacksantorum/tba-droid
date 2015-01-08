@@ -78,6 +78,7 @@ public class AddCommentActivity extends Activity {
     RequestQueue mRequestQueue = TBAVolley.getInstance(this).getRequestQueue();
     ImageLoader mImageLoader = TBAVolley.getInstance(this).getImageLoader();
 
+    private String pendingReplyHandle;
 
     List<User> allUsers = new ArrayList<User>();
 
@@ -129,6 +130,7 @@ public class AddCommentActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mFightId =  getIntent().getIntExtra("FIGHT_ID", 0);
+        pendingReplyHandle = getIntent().getStringExtra("TAGGED_USER");
 
         setContentView(R.layout.activity_add_comment);
 
@@ -237,6 +239,11 @@ public class AddCommentActivity extends Activity {
         });
 
         mCommentContentTextView = (EditText)findViewById(R.id.add_comment_edit_text);
+
+        if (pendingReplyHandle != null) {
+            mCommentContentTextView.setText("@" + pendingReplyHandle + " ");
+        }
+
         mCommentContentTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {

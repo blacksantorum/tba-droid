@@ -23,13 +23,13 @@ import java.util.List;
  */
 public class NotificationListAdapter extends ArrayAdapter<Notification> {
     private final Context context;
-    public Notification[] notifications;
+    public List<Notification> notifications;
 
     public NotificationListAdapter(Context context, List<Notification> notifications){
         super(context, R.layout.tagged_user_cell, notifications);
         this.context = context;
 
-        this.notifications = notifications.toArray(new Notification[notifications.size()]);
+        this.notifications = notifications;
     }
 
     private static class ViewHolder {
@@ -40,7 +40,7 @@ public class NotificationListAdapter extends ArrayAdapter<Notification> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Notification n = notifications[position];
+        Notification n = notifications.toArray(new Notification[notifications.size()])[position];
 
         ViewHolder holder;
 
@@ -53,6 +53,12 @@ public class NotificationListAdapter extends ArrayAdapter<Notification> {
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
+        }
+
+        if (!n.seen) {
+            convertView.setBackgroundColor(context.getResources().getColor(R.color.tw__light_gray));
+        } else {
+            convertView.setBackgroundColor(context.getResources().getColor(R.color.white));
         }
 
         holder.notificationUserImageView.setImageUrl(n.imgUrl, TBAVolley.getInstance(context).getImageLoader());

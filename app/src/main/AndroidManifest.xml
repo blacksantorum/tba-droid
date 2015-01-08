@@ -74,7 +74,9 @@
 
         <activity
             android:name=".AddCommentActivity"
-            android:label="@string/title_activity_add_comment" >
+            android:label="@string/title_activity_add_comment"
+            android:screenOrientation="sensorPortrait" >
+            >
         </activity>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="10c40858a2f71a28d7aaa3fb1a48cc74997d6c6e"/>

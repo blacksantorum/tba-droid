@@ -1,8 +1,10 @@
 package com.tba.theboxingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
@@ -67,6 +70,7 @@ public class FightDetailFragment extends Fragment {
     private static final String FIGHT_PARAM = "fight_param";
     private static final String BOXER_A_PARAM = "boxer_a_param";
     private static final String BOXER_B_PARAM = "boxer_b_param";
+    private static final String NOTIFIED_COMMENT_ID = "notified_comment_id";
 
     private int mFightId;
     private String mBoxerAName;
@@ -82,7 +86,7 @@ public class FightDetailFragment extends Fragment {
     private TextView mBoxerBPercentageLabel;
     private TextView mBoxerBNameLabel;
 
-   // private View mShadowView;
+    private int mNotifiedCommentId;
 
     private TextView mWeightClassLabel;
     private ListView mCommentsListView;
@@ -108,12 +112,19 @@ public class FightDetailFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     // TODO: Rename and change types and number of parameters
-    public static FightDetailFragment newInstance(Fight fight) {
+    public static FightDetailFragment newInstance(Fight fight, int notifiedCommentId) {
         FightDetailFragment fragment = new FightDetailFragment();
         Bundle args = new Bundle();
         args.putInt(FIGHT_PARAM,fight.id);
-        args.putString(BOXER_A_PARAM, fight.boxerA.fullName);
-        args.putString(BOXER_B_PARAM, fight.boxerB.fullName);
+        args.putInt(NOTIFIED_COMMENT_ID, notifiedCommentId);
+
+        if (fight.boxerA != null) {
+            args.putString(BOXER_A_PARAM, fight.boxerA.fullName);
+            args.putString(BOXER_B_PARAM, fight.boxerB.fullName);
+        } else {
+            args.putString(BOXER_A_PARAM, "");
+            args.putString(BOXER_B_PARAM, "");
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -130,24 +141,25 @@ public class FightDetailFragment extends Fragment {
             this.mBoxerAName = getArguments().getString(BOXER_A_PARAM);
             this.mBoxerBName = getArguments().getString(BOXER_B_PARAM);
 
-            Log.i("fight_id", "Fight id " + mFightId);
+            this.mNotifiedCommentId = getArguments().getInt(NOTIFIED_COMMENT_ID);
             mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
-            /*mRequestQueue.add(TBARequestFactory.FightRequest(new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject object) {
-                    Log.i("fight",object.toString());
-                }
-            },mFightId));
-            */
         }
     }
 
     private void updateComments(JSONArray object)
     {
+        int notifiedLocation = -1;
+
         mComments.clear();
         for (int i = 0; i < object.length() ; i++) {
             try {
-                mComments.add(new Comment(object.getJSONObject(i).getJSONObject("comment")));
+                Comment c = new Comment(object.getJSONObject(i).getJSONObject("comment"));
+                mComments.add(c);
+
+                if (c.id == mNotifiedCommentId) {
+                    notifiedLocation = i;
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -165,6 +177,11 @@ public class FightDetailFragment extends Fragment {
        //  }
         mCommentArrayAdapter.comments = mComments;
         mCommentArrayAdapter.notifyDataSetChanged();
+
+        if (notifiedLocation > 0) {
+            mCommentsListView.smoothScrollToPosition(notifiedLocation);
+        }
+
         mCommentsLayout.setVisibility(View.VISIBLE);
         mCommentsProgressBar.setVisibility(View.INVISIBLE);
         mCommentsLoadingTextView.setVisibility(View.INVISIBLE);
@@ -228,36 +245,6 @@ public class FightDetailFragment extends Fragment {
                 }
             }
         });
-        /*
-        mAddCommentEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showCommentPage();
-            }
-        });
-        */
-        /*
-        mAddCommentEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (i == EditorInfo.IME_ACTION_DONE) {
-                    mShadowView.setVisibility(View.INVISIBLE);
-                }
-                return false;
-            }
-        });
-
-        mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    mShadowView.setVisibility(View.VISIBLE);
-                } else {
-                    mShadowView.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-        */
 
         mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
 
@@ -266,34 +253,6 @@ public class FightDetailFragment extends Fragment {
     }
 
     private void updatePickPercentages() {
-        /*
-        Thread th = new Thread(new Runnable() {
-            int i = 0;
-            public void run() {
-                while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage) && shouldUpdatePickNumbers) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (i <= mBoxerAPickPercentage) {
-                                mBoxerAPercentageLabel.setText(i+"%");
-                            }
-                            if(i <= mBoxerBPickPercentage) {
-                                mBoxerBPercentageLabel.setText(i+"%");
-                            }
-                        }
-                    });
-                    i++;
-                    try {
-                        Thread.sleep(15);
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        th.start();
-        */
         mBoxerAPercentageLabel.setText(mBoxerAPickPercentage + "%");
         mBoxerBPercentageLabel.setText(mBoxerBPickPercentage + "%");
     }
@@ -307,8 +266,8 @@ public class FightDetailFragment extends Fragment {
                 try {
                     JSONObject fightObject = object.getJSONObject("fight");
                     mFight = new Fight(fightObject);
-                    // mBoxerANameLabel.setText(mFight.boxerA.fullName);
-                    // mBoxerBNameLabel.setText(mFight.boxerB.fullName);
+                    mBoxerANameLabel.setText(mFight.boxerA.fullName);
+                    mBoxerBNameLabel.setText(mFight.boxerB.fullName);
                     mWeightClassLabel.setText(mFight.weightClass);
                     JSONArray boxerArray = object.getJSONObject("fight").getJSONArray("boxers");
                     for (int i = 0; i < boxerArray.length() ; i++ ) {
@@ -325,24 +284,7 @@ public class FightDetailFragment extends Fragment {
                     Log.i("percentageB", "" + mBoxerBPickPercentage);
                     updatePickPercentages();
                     fetchComments(true);
-                    /*
-                    int i = 0;
 
-                    while (i <= Math.max(mBoxerAPickPercentage, mBoxerBPickPercentage)) {
-                        if (i <= mBoxerAPickPercentage) {
-                            mBoxerAPercentageLabel.setText(i+"%");
-                        }
-                        if(i <= mBoxerBPickPercentage) {
-                            mBoxerBPercentageLabel.setText(i+"%");
-                        }
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        i++;
-                    }
-                    */
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -446,10 +388,20 @@ public class FightDetailFragment extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final Comment comment = comments.get(position);
+
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.fight_comment_detail, parent, false);
             NetworkImageView userImageView = (NetworkImageView)v.findViewById(R.id.commentUserImageView);
+
+            if (mNotifiedCommentId == comment.id) {
+
+                // getResources().getColor(R.color.tw__light_gray)
+                v.setBackgroundColor(getResources().getColor(R.color.tw__light_gray));
+                mNotifiedCommentId = 0;
+            } else {
+                v.setBackgroundColor(getResources().getColor(R.color.white));
+            }
 
             userImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -496,11 +448,60 @@ public class FightDetailFragment extends Fragment {
 
             timeAgoLabel.setText(prettyTimeAgo(comment.createdAt));
             likesLabel.setText(new String("" +comment.likes));
-            if (User.currentUser() == comment.user) {
-                deleteButton.setVisibility(View.VISIBLE);
+
+            if (User.currentUser().id == comment.user.id) {
+                deleteButton.setText("Delete");
             } else {
-                deleteButton.setVisibility(View.INVISIBLE);
+                deleteButton.setText("Reply");
             }
+
+            deleteButton.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.currentUser().id == comment.user.id) {
+
+                        new AlertDialog.Builder(getActivity()).setTitle("Confirm").setMessage("Are you sure you want to delete this comment?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mRequestQueue.add(TBARequestFactory.DeleteCommentRequest(comment.id, new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String s) {
+                                        for (int i = 0; i < mCommentArrayAdapter.comments.size() ; i++) {
+                                            Comment c = mCommentArrayAdapter.getItem(i);
+                                            if (c.id == comment.id) {
+                                                mCommentArrayAdapter.comments.remove(c);
+                                                mCommentArrayAdapter.notifyDataSetChanged();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError volleyError) {
+                                        new AlertDialog.Builder(getActivity()).setTitle("Couldn't delete comment").setMessage(volleyError.getLocalizedMessage())
+                                                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        // Do nothing;
+                                                    }
+                                                }).show();
+                                    }
+                                }));
+                            }
+                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        // Do nothing;
+                                    }
+                                }).show();
+                    } else {
+                        Intent intent = new Intent(getActivity(), AddCommentActivity.class);
+                        intent.putExtra("FIGHT_ID", mFightId);
+                        intent.putExtra("TAGGED_USER", comment.user.handle);
+                        getActivity().startActivityForResult(intent, 2);
+                    }
+                }
+            });
 
             if (comment.likedByCurrentUser) {
                 jabButton.setEnabled(false);

@@ -12,6 +12,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.tba.theboxingapp.Model.Comment;
+import com.tba.theboxingapp.Model.Notification;
 import com.tba.theboxingapp.Model.User;
 
 import org.json.JSONArray;
@@ -19,7 +20,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+
+import retrofit.http.POST;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -238,9 +242,40 @@ public class TBARequestFactory {
     public static JsonObjectRequest NotificationRequest(int page, Response.Listener<JSONObject> listener,
                                                         Response.ErrorListener errorListener) {
 
-        String url = BASE_URL + "users/" + User.currentUser().getId() + "notifications/";
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications";
 
         return new JsonObjectRequest(Request.Method.GET, withSessionToken(url), null, listener, errorListener);
 
+    }
+
+    public static StringRequest DeleteCommentRequest(int commentId, Response.Listener<String> listener,
+                                                     Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "comments/" + commentId;
+
+        return new StringRequest(Request.Method.DELETE, withSessionToken(url), listener, errorListener);
+    }
+
+    public static JsonObjectRequest MarkNotificationsRequest(List<Notification> notifications,
+                                                         Response.Listener<JSONObject> listener,
+                                                         Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications/seen";
+
+        JSONArray notifs = new JSONArray();
+
+        for (int i = 0; i < notifications.size() ; i++) {
+            Notification n = notifications.get(i);
+            notifs.put(n.id);
+        }
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("notification_ids", notifs);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new JsonObjectRequest(url, params,listener, errorListener);
     }
 }

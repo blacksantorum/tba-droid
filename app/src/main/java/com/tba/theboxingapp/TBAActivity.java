@@ -173,8 +173,8 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         else if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, PlacesFragment.newInstance()).commit();
-            mTitle = "Places";
+                    .replace(R.id.container, NotificationFragment.newInstance()).commit();
+            mTitle = "Notifications";
         } else if (position == 3) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
