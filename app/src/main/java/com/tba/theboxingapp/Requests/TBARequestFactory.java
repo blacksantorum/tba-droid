@@ -13,6 +13,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Notification;
 import com.tba.theboxingapp.Model.User;
@@ -247,7 +248,9 @@ public class TBARequestFactory {
 
         String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications";
 
-        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url), null, listener, errorListener);
+        Log.i("Notifications url", url);
+
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url) + "&page=" +page ,null, listener, errorListener);
 
     }
 
@@ -259,8 +262,8 @@ public class TBARequestFactory {
         return new StringRequest(Request.Method.DELETE, withSessionToken(url), listener, errorListener);
     }
 
-    public static StringRequest MarkNotificationsRequest(List<Notification> notifications,
-                                                         Response.Listener<String> listener,
+    public static JsonObjectRequest MarkNotificationsRequest(List<Notification> notifications,
+                                                         Response.Listener<JSONObject> listener,
                                                          Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications/seen";
@@ -281,7 +284,7 @@ public class TBARequestFactory {
 
         Log.e("Parameters", params.toString());
 
-        return new StringRequest(Request.Method.POST,url,listener, errorListener) {
+        return new JsonObjectRequest(Request.Method.POST,withSessionToken(url),params,listener, errorListener) {
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();

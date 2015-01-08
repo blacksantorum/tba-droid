@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -55,6 +56,7 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
 
     private ListView mListView;
     private ProgressBar mLoadingNotificationsProgress;
+    private TextView emptyView;
 
     private boolean mSaveView = false;
     private SoftReference<View> mViewReference;
@@ -142,8 +144,12 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
             mLoadingNotificationsProgress = (ProgressBar) v.findViewById(R.id.loadNotificationProgress);
             mListView = (ListView) v.findViewById(R.id.notificationsList);
 
+            emptyView = (TextView)v.findViewById(R.id.empty_notification_item);
+
             mFooterView = inflater.inflate(R.layout.bottom_spinner_layout, null, false);
             mListView.addFooterView(mFooterView);
+
+            mListView.setEmptyView(getActivity().findViewById(R.id.empty_notification_item));
 
             mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
@@ -184,6 +190,14 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
         return v;
     }
 
+    public void longInfo(String str) {
+        if(str.length() > 4000) {
+            Log.i("Notifications object", str.substring(0, 4000));
+            longInfo(str.substring(4000));
+        } else
+            Log.i("Notifications object", str);
+    }
+
     private void loadNotifications()
     {
         if (page == 1) {
@@ -197,31 +211,38 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {
+                    Log.i("Page", String.valueOf(page));
+                    longInfo(jsonObject.toString());
+
                     int notificationsCount = jsonObject.getInt("notifications_count");
-                    JSONArray notificationsArray = jsonObject.getJSONArray("notifications");
 
-                    hasNext = mNotificationsAdapter.notifications.size() + notificationsArray.length() < notificationsCount;
+                    if (notificationsCount > 0) {
 
-                    unreadNotifications.clear();
+                        JSONArray notificationsArray = jsonObject.getJSONArray("notifications");
 
-                    for (int i = 0; i < notificationsArray.length(); i++) {
-                        Notification n = new Notification(notificationsArray.getJSONObject(i));
-                        mNotificationsAdapter.notifications.add(n);
+                        hasNext = mNotificationsAdapter.notifications.size() + notificationsArray.length() < notificationsCount;
 
-                        if (!n.seen) {
-                            unreadNotifications.add(n);
+                        unreadNotifications.clear();
+
+                        for (int i = 0; i < notificationsArray.length(); i++) {
+                            Notification n = new Notification(notificationsArray.getJSONObject(i));
+                            mNotificationsAdapter.notifications.add(n);
+
+                            if (!n.seen) {
+                                unreadNotifications.add(n);
+                            }
                         }
-                    }
 
-                    mNotificationsAdapter.notifyDataSetChanged();
+                        mNotificationsAdapter.notifyDataSetChanged();
 
-                    Log.i("Unread notifications", String.valueOf(unreadNotifications.size()));
+                        // Log.i("Unread notifications", String.valueOf(unreadNotifications.size()));
 
-                    if (unreadNotifications.size() > 0) {
-                        /*
-                        mRequestQueue.add(TBARequestFactory.MarkNotificationsRequest(unreadNotifications, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String string) {
+                        if (unreadNotifications.size() > 0) {
+
+                            mRequestQueue.add(TBARequestFactory.MarkNotificationsRequest(unreadNotifications, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject object) {
+                                /*
                                 for (int i = 0; i < unreadNotifications.size(); i++) {
                                     for (int j = 0; j < mNotificationsAdapter.notifications.size(); j++) {
                                         if (mNotificationsAdapter.notifications.get(j).id == unreadNotifications.get(i).id) {
@@ -231,15 +252,19 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
                                     }
                                 }
                                 mNotificationsAdapter.notifyDataSetChanged();
-                                unreadNotifications.clear();
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError volleyError) {
-                                volleyError.printStackTrace();
-                            }
-                        }));
-                        */
+                                */
+                                    unreadNotifications.clear();
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    volleyError.printStackTrace();
+                                }
+                            }));
+                        }
+                    } else {
+                        mListView.setVisibility(View.GONE);
+                        emptyView.setVisibility(View.VISIBLE);
                     }
 
                     setLoading(false);
