@@ -91,7 +91,7 @@
 
         <ProgressBar
         android:id="@+id/loadActivityProgress"
-        style="@style/Widget.AppCompat.Base.Spinner"
+        style="android:style/Widget.Holo.Light.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
@@ -100,17 +100,6 @@
         android:visibility="invisible"
         >
         </ProgressBar>
-
-        <TextView
-        android:id="@+id/loadActivityTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/loadActivityProgress"
-        android:layout_centerInParent="true"
-        android:text="Loading picks..."
-        android:textColor="@color/gray"
-        android:visibility="invisible"
-        />
 
         <ListView
             android:paddingLeft="10dp"

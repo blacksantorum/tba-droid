@@ -24,7 +24,7 @@ android {
         applicationId "com.tba.theboxingapp"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 6
+        versionCode 7
         versionName "1.1"
     }
     buildTypes {
