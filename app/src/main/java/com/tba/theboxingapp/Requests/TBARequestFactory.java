@@ -276,6 +276,8 @@ public class TBARequestFactory {
             e.printStackTrace();
         }
 
-        return new JsonObjectRequest(url, params,listener, errorListener);
+        Log.e("Parameters", params.toString());
+
+        return new JsonObjectRequest(Request.Method.POST, url, params,listener, errorListener);
     }
 }
