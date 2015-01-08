@@ -391,6 +391,8 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                 return rowView;
         }
 
+        
+
         @Override
         public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
                 final Fight fight = fights.get(dates.get(i)).get(i1);

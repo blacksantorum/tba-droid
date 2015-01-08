@@ -1,9 +1,11 @@
 package com.tba.theboxingapp.Requests;
 
 import android.location.GpsStatus;
+import android.net.Uri;
 import android.net.sip.SipSession;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -20,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -256,13 +259,13 @@ public class TBARequestFactory {
         return new StringRequest(Request.Method.DELETE, withSessionToken(url), listener, errorListener);
     }
 
-    public static JsonObjectRequest MarkNotificationsRequest(List<Notification> notifications,
-                                                         Response.Listener<JSONObject> listener,
+    public static StringRequest MarkNotificationsRequest(List<Notification> notifications,
+                                                         Response.Listener<String> listener,
                                                          Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications/seen";
 
-        JSONArray notifs = new JSONArray();
+        final JSONArray notifs = new JSONArray();
 
         for (int i = 0; i < notifications.size() ; i++) {
             Notification n = notifications.get(i);
@@ -278,6 +281,20 @@ public class TBARequestFactory {
 
         Log.e("Parameters", params.toString());
 
-        return new JsonObjectRequest(Request.Method.POST, url, params,listener, errorListener);
+        return new StringRequest(Request.Method.POST,url,listener, errorListener) {
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("notification_ids",notifs.toString());
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/json");
+                return params;
+            }
+        };
     }
 }

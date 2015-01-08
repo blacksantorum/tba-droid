@@ -218,10 +218,10 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
                     Log.i("Unread notifications", String.valueOf(unreadNotifications.size()));
 
                     if (unreadNotifications.size() > 0) {
-
-                        mRequestQueue.add(TBARequestFactory.MarkNotificationsRequest(unreadNotifications, new Response.Listener<JSONObject>() {
+                        /*
+                        mRequestQueue.add(TBARequestFactory.MarkNotificationsRequest(unreadNotifications, new Response.Listener<String>() {
                             @Override
-                            public void onResponse(JSONObject jsonObject) {
+                            public void onResponse(String string) {
                                 for (int i = 0; i < unreadNotifications.size(); i++) {
                                     for (int j = 0; j < mNotificationsAdapter.notifications.size(); j++) {
                                         if (mNotificationsAdapter.notifications.get(j).id == unreadNotifications.get(i).id) {
@@ -239,6 +239,7 @@ public class NotificationFragment extends Fragment implements Response.ErrorList
                                 volleyError.printStackTrace();
                             }
                         }));
+                        */
                     }
 
                     setLoading(false);

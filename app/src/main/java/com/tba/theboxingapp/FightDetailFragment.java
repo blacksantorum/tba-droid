@@ -46,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.text.format.DateUtils;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,6 +65,9 @@ import java.util.logging.Handler;
  *
  */
 public class FightDetailFragment extends Fragment {
+
+    private boolean mSaveView = false;
+    private SoftReference<View> mViewReference;
 
     public enum CommentMode { SHOW_TOP, SHOW_NEW};
 
@@ -97,7 +101,6 @@ public class FightDetailFragment extends Fragment {
     public EditText mAddCommentEditText;
 
     private ProgressBar mCommentsProgressBar;
-    private TextView mCommentsLoadingTextView;
 
     private RequestQueue mRequestQueue;
 
@@ -184,7 +187,6 @@ public class FightDetailFragment extends Fragment {
 
         mCommentsLayout.setVisibility(View.VISIBLE);
         mCommentsProgressBar.setVisibility(View.INVISIBLE);
-        mCommentsLoadingTextView.setVisibility(View.INVISIBLE);
     }
 
     public void showCommentPage()
@@ -195,60 +197,81 @@ public class FightDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_fight_detail, container, false);
-        mBoxerANameLabel = (TextView)v.findViewById(R.id.boxerANameLabel);
-        mBoxerANameLabel.setText(mBoxerAName);
-        mBoxerBNameLabel = (TextView)v.findViewById(R.id.boxerBNameLabel);
-        mBoxerBNameLabel.setText(mBoxerBName);
-        mBoxerAPercentageLabel = (TextView)v.findViewById(R.id.boxerAPickPercentageLabel);
-        mBoxerAPercentageLabel.setText("0%");
-        mBoxerBPercentageLabel = (TextView)v.findViewById(R.id.boxerBPickPercentageLabel);
-        mBoxerBPercentageLabel.setText("0%");
-        mWeightClassLabel = (TextView)v.findViewById(R.id.weightClassLabel);
-        // mShadowView = (View)v.findViewById(R.id.addCommentShadow);
 
-        mCommentsProgressBar = (ProgressBar)v.findViewById(R.id.loadCommentsProgress);
-        mCommentsLoadingTextView = (TextView)v.findViewById(R.id.loadCommentsTextView);
+        View v = null;
 
-        mCommentToolbarImageView = (NetworkImageView)v.findViewById(R.id.commentToolbarUserImageView);
-        mCommentToolbarImageView.setImageUrl(User.currentUser().profileImageUrl,
-                TBAVolley.getInstance(getActivity()).getImageLoader());
-
-        mCommentsListView = (ListView)v.findViewById(R.id.comments_list_view);
-        mCommentsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i("Comments","Clicked");
-                Comment comment = mCommentArrayAdapter.comments.get(i);
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, UserDetailFragment.newInstance(comment.user.id, comment.user.name, comment.user.profileImageUrl)).
-                        addToBackStack(null).commit();
-            }
-        });
-
-
-        //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
-        mAddCommentEditText = (EditText)v.findViewById(R.id.addACommentEditTextView);
-        mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    Intent intent = new Intent(getActivity(), AddCommentActivity.class);
-                    intent.putExtra("FIGHT_ID", mFightId);
-                    getActivity().startActivityForResult(intent, 2);
-                    if (mAddCommentEditText.hasFocus()) {
-
+        if (mSaveView) {
+            if (mViewReference != null) {
+                final View savedView = mViewReference.get();
+                if (savedView != null) {
+                    if (savedView.getParent() != null) {
+                        ((ViewGroup) savedView.getParent()).removeView(savedView);
+                        v = savedView;
+                    } else {
+                        v = savedView;
                     }
                 }
             }
-        });
+        } else {
 
-        mCommentsLayout = (RelativeLayout)v.findViewById(R.id.commentsLayout);
+            // Inflate the layout for this fragment
+            v = inflater.inflate(R.layout.fragment_fight_detail, container, false);
+            mViewReference = new SoftReference<View>(v);
 
-        fetchFight();
+            mBoxerANameLabel = (TextView) v.findViewById(R.id.boxerANameLabel);
+            mBoxerANameLabel.setText(mBoxerAName);
+            mBoxerBNameLabel = (TextView) v.findViewById(R.id.boxerBNameLabel);
+            mBoxerBNameLabel.setText(mBoxerBName);
+            mBoxerAPercentageLabel = (TextView) v.findViewById(R.id.boxerAPickPercentageLabel);
+            mBoxerAPercentageLabel.setText("0%");
+            mBoxerBPercentageLabel = (TextView) v.findViewById(R.id.boxerBPickPercentageLabel);
+            mBoxerBPercentageLabel.setText("0%");
+            mWeightClassLabel = (TextView) v.findViewById(R.id.weightClassLabel);
+            // mShadowView = (View)v.findViewById(R.id.addCommentShadow);
+
+            mCommentsProgressBar = (ProgressBar) v.findViewById(R.id.loadCommentsProgress);
+
+            mCommentToolbarImageView = (NetworkImageView) v.findViewById(R.id.commentToolbarUserImageView);
+            mCommentToolbarImageView.setImageUrl(User.currentUser().profileImageUrl,
+                    TBAVolley.getInstance(getActivity()).getImageLoader());
+
+            mCommentsListView = (ListView) v.findViewById(R.id.comments_list_view);
+            mCommentsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Log.i("Comments", "Clicked");
+                    Comment comment = mCommentArrayAdapter.comments.get(i);
+                    FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.container, UserDetailFragment.newInstance(comment.user.id, comment.user.name, comment.user.profileImageUrl)).
+                            addToBackStack(null).commit();
+                }
+            });
+
+
+            //mCommentsListView.setEmptyView(v.findViewById(R.id.emptyView));
+            mAddCommentEditText = (EditText) v.findViewById(R.id.addACommentEditTextView);
+            mAddCommentEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean b) {
+                    if (b) {
+                        Intent intent = new Intent(getActivity(), AddCommentActivity.class);
+                        intent.putExtra("FIGHT_ID", mFightId);
+                        getActivity().startActivityForResult(intent, 2);
+                        if (mAddCommentEditText.hasFocus()) {
+
+                        }
+                    }
+                }
+            });
+
+            mCommentsLayout = (RelativeLayout) v.findViewById(R.id.commentsLayout);
+
+            fetchFight();
+
+            mSaveView = true;
+        }
         return v;
     }
 
@@ -305,7 +328,6 @@ public class FightDetailFragment extends Fragment {
 
         mCommentsLayout.setVisibility(View.INVISIBLE);
         mCommentsProgressBar.setVisibility(View.VISIBLE);
-        mCommentsLoadingTextView.setVisibility(View.VISIBLE);
         queue.add(TBARequestFactory.CommentsRequest(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray object) {
@@ -489,11 +511,11 @@ public class FightDetailFragment extends Fragment {
                                 }));
                             }
                         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        // Do nothing;
-                                    }
-                                }).show();
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing;
+                            }
+                        }).show();
                     } else {
                         Intent intent = new Intent(getActivity(), AddCommentActivity.class);
                         intent.putExtra("FIGHT_ID", mFightId);
