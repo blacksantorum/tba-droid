@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentTop="true"
-        android:background="@drawable/abc_menu_dropdown_panel_holo_dark"
+        android:background="@drawable/abc_item_background_holo_dark"
         >
         <LinearLayout
             android:orientation="vertical"
@@ -27,13 +27,13 @@
                 android:layout_height="wrap_content"
                 android:textSize="35sp"
                 android:gravity="center"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 />
             <TextView
                 android:id="@+id/boxerANameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:gravity="center"
                 />
         </LinearLayout>
@@ -43,7 +43,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:layout_margin="5dp"
             />
 
@@ -61,14 +61,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="35sp"
                 android:gravity="center"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 />
             <TextView
                 android:id="@+id/boxerBNameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 />
         </LinearLayout>
      </LinearLayout>
