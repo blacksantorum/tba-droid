@@ -34,12 +34,22 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.internal.de;
+import com.google.android.gms.internal.pu;
+import com.pubnub.api.PnGcmMessage;
+import com.pubnub.api.PnMessage;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
 import com.tba.theboxingapp.Model.Boxer;
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.Fight;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
+
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -347,9 +357,61 @@ public class FightDetailFragment extends Fragment {
         }
     }
 
+    private void sendTestMessage()
+    {
+        PnGcmMessage gcmMessage = new PnGcmMessage();
+
+        JSONObject jso = new JSONObject();
+        try {
+            jso.put("summary", "Game update 49ers touchdown");
+            jso.put("lastplay", "5yd run up the middle");
+        } catch (JSONException e) {
+
+        }
+
+        gcmMessage.setData(jso);
+
+        Callback callback = new Callback() {
+            @Override
+            public void successCallback(String channel, Object response) {
+                System.out.println(response);
+            }
+
+            @Override
+            public void errorCallback(String channel, PubnubError error) {
+                System.out.println(error);
+            }
+        };
+
+        PnMessage message = null;
+
+        Pubnub pubnub = TBAApp.pubnub;;
+
+        message = new PnMessage(pubnub, User.currentUser().handle, callback, gcmMessage);
+        /*
+        if (message == null)
+            message = new PnMessage(pubnub, User.currentUser().handle, callback);
+        */
+        try {
+            message.publish();
+        } catch (PubnubException e) {
+            switch (e.getPubnubError().errorCode) {
+                case PubnubError.PNERR_CHANNEL_MISSING:
+                    System.out.println("Channel name not set");
+                    break;
+                case PubnubError.PNERR_CONNECTION_NOT_SET:
+                    System.out.println("Pubnub object not set");
+                    break;
+            }
+
+        }
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        // sendTestMessage();
 
         try {
             mListener = (OnFragmentInteractionListener) activity;

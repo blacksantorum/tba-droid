@@ -2,9 +2,7 @@ package com.tba.theboxingapp;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.parse.Parse;
-import com.parse.ParseTwitterUtils;
-import com.parse.PushService;
+
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
@@ -40,7 +38,7 @@ public class TBAApp extends  Application {
     private static final String SENDER_ID = "605438060906";
     private static String REG_ID = "";
 
-    private static final Pubnub pubnub = new Pubnub(PUBLISH_KEY, SUBSCRIBE_KEY, null, null, false);
+    public static final Pubnub pubnub = new Pubnub(PUBLISH_KEY, SUBSCRIBE_KEY, null, null, false);
     private static GoogleCloudMessaging gcm;
 
     public static final String PREFS_NAME = "TBAPref";
@@ -86,12 +84,12 @@ public class TBAApp extends  Application {
                         @Override
                         public void successCallback(String channel, Object message) {
                             super.successCallback(channel, message);
-                            Log.i("PubNub", message.toString());
+                            Log.i("PubNub", "Subscribed to: " + channel + ", " + message.toString());
                             pubnub.enablePushNotificationsOnChannel(User.currentUser().getHandle(), REG_ID, new Callback() {
                                 @Override
                                 public void successCallback(String channel, Object message) {
                                     super.successCallback(channel, message);
-                                    Log.i("PubNub", message.toString());
+                                    Log.i("PubNub", "Enabled push on channel: " + channel + ", " + message.toString());
                                 }
 
                                 @Override
@@ -110,6 +108,7 @@ public class TBAApp extends  Application {
                     });
                 } catch (PubnubException e) {
                     e.printStackTrace();
+                    Log.i("PubNub", "Something fucked up happened.");
                 }
 
             }
@@ -133,12 +132,5 @@ public class TBAApp extends  Application {
 
         TBAVolley.getInstance(getApplicationContext());
 
-        Parse.initialize(this, "37Wefeshbl6O27mkd3hsKwXCA3QhbOEdRDxvD0bk", "SLxLOpx4IinngjXa1q3IC80I9gLJ8RPZASfg7lHb");
-        ParseTwitterUtils.initialize("5tq6ikua9WzjyvCfdahH9g", "EKk7fSHD49IkEQ2nOFG89X3XXNFTZ43xQJ0yzRpLuM");
-        try {
-            PushService.setDefaultPushCallback(this, TBAActivity.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 }

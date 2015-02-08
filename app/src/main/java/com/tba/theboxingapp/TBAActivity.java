@@ -31,14 +31,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.internal.id;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
-import com.parse.LogInCallback;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParseTwitterUtils;
-import com.parse.ParseUser;
-import com.parse.PushService;
+
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;

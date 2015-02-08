@@ -29,10 +29,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseTwitterUtils;
-import com.parse.ParseUser;
+
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Requests.TBARequestFactory;
 
