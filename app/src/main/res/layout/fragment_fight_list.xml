@@ -12,24 +12,11 @@
 
     <ProgressBar
         android:id="@+id/loadFightsProgress"
-        style="@style/Widget.AppCompat.Base.Spinner"
+        style="@android:style/Widget.Holo.Light.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/fight_list"
-        android:paddingTop="20dp"
-        android:layout_centerInParent="true"
-        android:visibility="invisible"
-        >
-    </ProgressBar>
-
-    <TextView
-        android:id="@+id/loadFightsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/loadFightsProgress"
-        android:layout_centerInParent="true"
-        android:text="Loading fights..."
-        android:textColor="@color/gray"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
         android:visibility="invisible"
         />
 </RelativeLayout>

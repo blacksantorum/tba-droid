@@ -42,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.lang.ref.SoftReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,10 @@ import java.util.List;
 import java.util.Map;
 
 public class FightListFragment extends Fragment implements Response.ErrorListener {
+
+    private boolean mSaveView = false;
+    private SoftReference<View> mViewReference;
+
     private static final String LOGIN_TYPE_PARAM = "login_type_param";
 
     public enum ListType { FEATURED, PAST };
@@ -60,7 +65,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
     private RequestQueue mRequestQueue;
     private ExpandableListView mExpandableListView;
     private ProgressBar mLoadingFightsProgress;
-    private TextView mLoadingFightsTextView;
 
     private View mFooterView;
 
@@ -101,44 +105,87 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_fight_list, container, false);
-        mExpandableListView = (ExpandableListView) v.findViewById(R.id.fight_list);
+    public void onStart() {
+        super.onStart();
+    }
 
-        mFooterView = inflater.inflate(R.layout.bottom_spinner_layout, null, false);
-        mExpandableListView.addFooterView(mFooterView);
+    private void setFightListAdapter()
+    {
+        mFightListAdapter = new FightListAdapter(getActivity());
+        mExpandableListView.setAdapter(mFightListAdapter);
 
-        mExpandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int first, int visible, int total) {
-                float scrollPercentage = ((float)first + (float)visible) / (float)total;
-
-                if (scrollPercentage > 0.6 && hasNext & !isLoading) {
-                    loadFights();
-                }
-            }
-        });
-
-        mLoadingFightsProgress = (ProgressBar)v.findViewById(R.id.loadFightsProgress);
-        mLoadingFightsTextView = (TextView)v.findViewById(R.id.loadFightsTextView);
-
-        mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                return true;
-            }
-        });
+        mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
 
         loadFights();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View v = null;
+
+        if (mSaveView) {
+            if (mViewReference != null) {
+                final View savedView = mViewReference.get();
+                if (savedView != null) {
+                    if (savedView.getParent() != null) {
+                        ((ViewGroup) savedView.getParent()).removeView(savedView);
+                        v = savedView;
+                    } else {
+                        v = savedView;
+                    }
+                }
+            }
+        } else {
+
+            Log.e("View", "Creating view!");
+
+            // Inflate the layout for this fragment
+            v = inflater.inflate(R.layout.fragment_fight_list, container, false);
+            mViewReference = new SoftReference<View>(v);
+
+            mExpandableListView = (ExpandableListView) v.findViewById(R.id.fight_list);
+
+            mFooterView = inflater.inflate(R.layout.bottom_spinner_layout, null, false);
+            mExpandableListView.addFooterView(mFooterView);
+
+            mExpandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView absListView, int first, int visible, int total) {
+                    float scrollPercentage = ((float) first + (float) visible) / (float) total;
+
+                    if (scrollPercentage > 0.6 && hasNext & !isLoading) {
+                        loadFights();
+                    }
+                }
+            });
+
+            mLoadingFightsProgress = (ProgressBar) v.findViewById(R.id.loadFightsProgress);
+
+            mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                @Override
+                public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                    return true;
+                }
+            });
+
+            if (mFightListAdapter == null) {
+                setFightListAdapter();
+            }
+
+            mSaveView = true;
+        }
+
+        Log.e("View", "There's a view!");
 
         return v;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -163,17 +210,9 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
 
     private void loadFights()
     {
-        if (mFightListAdapter == null) {
-            mFightListAdapter = new FightListAdapter(getActivity());
-            mExpandableListView.setAdapter(mFightListAdapter);
-        }
-
-        mRequestQueue = TBAVolley.getInstance(getActivity()).getRequestQueue();
-
         if (page == 1) {
             mExpandableListView.setVisibility(View.INVISIBLE);
             mLoadingFightsProgress.setVisibility(View.VISIBLE);
-            mLoadingFightsTextView.setVisibility(View.VISIBLE);
         }
 
         boolean featured = (mListType == ListType.FEATURED);
@@ -231,7 +270,7 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
 
 
                                                                         fragmentManager.beginTransaction()
-                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight), "FIGHT_DETAIL").
+                                                                                .replace(R.id.container, FightDetailFragment.newInstance(fight, 0), "FIGHT_DETAIL").
                                                                                 addToBackStack(null).commit();
                                                                         /*
                                                                         fragmentManager.beginTransaction()
@@ -247,7 +286,6 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                     if (page == 2) {
                         mExpandableListView.setVisibility(View.VISIBLE);
                         mLoadingFightsProgress.setVisibility(View.INVISIBLE);
-                        mLoadingFightsTextView.setVisibility(View.INVISIBLE);
                     }
 
 
@@ -352,6 +390,8 @@ public class FightListFragment extends Fragment implements Response.ErrorListene
                 textView.setText(headerDateString(dates.get(i)));
                 return rowView;
         }
+
+        
 
         @Override
         public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <com.android.volley.toolbox.NetworkImageView
+        android:id="@+id/notificationUserImageView"
+        android:layout_width="37dip"
+        android:layout_height="37dip"
+        android:background="@android:color/black"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <TextView
+        android:id="@+id/notificationContentTextView"
+        android:layout_width="fill_parent"
+        android:textSize="14dp"
+        android:layout_height="wrap_content"
+        android:text="theboxingapp said: @spicykeychain Charlo with the big KO!"
+        android:layout_toRightOf="@id/notificationUserImageView"
+        android:layout_alignTop="@id/notificationUserImageView"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="10dp"
+        />
+
+    <TextView
+        android:id="@+id/notificationDateTextView"
+        android:layout_width="fill_parent"
+        android:textSize="12dp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_height="wrap_content"
+        android:text="4 hours ago"
+        android:layout_toRightOf="@id/notificationUserImageView"
+        android:layout_below="@id/notificationContentTextView"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="10dp"
+        />
+
+</RelativeLayout>

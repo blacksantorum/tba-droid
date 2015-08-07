@@ -1,9 +1,11 @@
 package com.tba.theboxingapp.Requests;
 
 import android.location.GpsStatus;
+import android.net.Uri;
 import android.net.sip.SipSession;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -11,7 +13,9 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
 import com.tba.theboxingapp.Model.Comment;
+import com.tba.theboxingapp.Model.Notification;
 import com.tba.theboxingapp.Model.User;
 
 import org.json.JSONArray;
@@ -19,7 +23,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import retrofit.http.POST;
 
 /**
  * Created by christibbs on 9/14/14.
@@ -135,7 +143,7 @@ public class TBARequestFactory {
     }
     */
 
-    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONObject[] tagged ,String comment,
+    public static JsonObjectRequest PostCommentRequest(Response.Listener<JSONObject> listener, int fightId, JSONArray tagged ,String comment,
                                                        Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "/comments";
@@ -150,6 +158,8 @@ public class TBARequestFactory {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        Log.i("Comment obj", params.toString());
 
         return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }
@@ -231,5 +241,71 @@ public class TBARequestFactory {
     public static JsonArrayRequest GetUsers(Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
         String url = BASE_URL + "users";
         return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
+    }
+
+    public static JsonObjectRequest FetchUnpickedFightsRequest(Response.Listener<JSONObject> listener,
+                                                        Response.ErrorListener errorListener) {
+
+        String url = BASE_URL + "unpicked_fights";
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url),null, listener, errorListener);
+
+    }
+
+    public static JsonObjectRequest NotificationRequest(int page, Response.Listener<JSONObject> listener,
+                                                        Response.ErrorListener errorListener) {
+
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications";
+
+        Log.i("Notifications url", url);
+
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url) + "&page=" +page ,null, listener, errorListener);
+
+    }
+
+    public static StringRequest DeleteCommentRequest(int commentId, Response.Listener<String> listener,
+                                                     Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "comments/" + commentId;
+
+        return new StringRequest(Request.Method.DELETE, withSessionToken(url), listener, errorListener);
+    }
+
+    public static JsonObjectRequest MarkNotificationsRequest(List<Notification> notifications,
+                                                         Response.Listener<JSONObject> listener,
+                                                         Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "users/" + User.currentUser().getId() + "/notifications/seen";
+
+        final JSONArray notifs = new JSONArray();
+
+        for (int i = 0; i < notifications.size() ; i++) {
+            Notification n = notifications.get(i);
+            notifs.put(n.id);
+        }
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("notification_ids", notifs);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.e("Parameters", params.toString());
+
+        return new JsonObjectRequest(Request.Method.POST,withSessionToken(url),params,listener, errorListener) {
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("notification_ids",notifs.toString());
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/json");
+                return params;
+            }
+        };
     }
 }

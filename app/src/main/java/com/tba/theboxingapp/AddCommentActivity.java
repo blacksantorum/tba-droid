@@ -57,6 +57,8 @@ public class AddCommentActivity extends Activity {
     EditText mCommentContentTextView;
     ListView mTagCandidatesList;
 
+    String pendingTag;
+
     public void setTaggingMode(boolean taggingMode) {
         this.taggingMode = taggingMode;
         if (this.taggingMode) {
@@ -76,13 +78,18 @@ public class AddCommentActivity extends Activity {
     RequestQueue mRequestQueue = TBAVolley.getInstance(this).getRequestQueue();
     ImageLoader mImageLoader = TBAVolley.getInstance(this).getImageLoader();
 
+    private String pendingReplyHandle;
 
     List<User> allUsers = new ArrayList<User>();
+
+    List<User> filteredUsers = new ArrayList<User>();
+
     List<User> taggedUsers = new ArrayList<User>();
 
     @Override
     protected  void onResume() {
         super.onResume();
+
         mCommentContentTextView.requestFocus();
 
         mCommentContentTextView.postDelayed(new Runnable() {
@@ -108,11 +115,22 @@ public class AddCommentActivity extends Activity {
                 }).show();
     }
 
+    private void wordAlert(String text) {
+        new AlertDialog.Builder(this).setTitle("Word").setMessage(text)
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing;
+                    }
+                }).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mFightId =  getIntent().getIntExtra("FIGHT_ID", 0);
+        pendingReplyHandle = getIntent().getStringExtra("TAGGED_USER");
 
         setContentView(R.layout.activity_add_comment);
 
@@ -134,7 +152,6 @@ public class AddCommentActivity extends Activity {
         mHandleTextView = (TextView)findViewById(R.id.add_comment_user_screen_name);
         mAddCommentButton = (Button)findViewById(R.id.add_comment_button);
 
-        /*
         mRequestQueue.add(TBARequestFactory.GetUsers(new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
@@ -142,13 +159,15 @@ public class AddCommentActivity extends Activity {
                     try {
                         JSONObject userDict = (JSONObject) jsonArray.get(i);
                         User u = new User(userDict.getJSONObject("user"));
-                        allUsers.add(u);
+                        if (u.id != User.currentUser().id) {
+                            allUsers.add(u);
+                        }
                     } catch(JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
-                mAdapter = new TagCandidateListAdapter(getApplicationContext(), allUsers);
+                mAdapter = new TagCandidateListAdapter(getApplicationContext(), filteredUsers);
                 mTagCandidatesList.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 // mTagCandidatesList.setVisibility(View.VISIBLE);
@@ -159,39 +178,45 @@ public class AddCommentActivity extends Activity {
                 volleyError.printStackTrace();
             }
         }));
-        */
-
 
         mAddCommentButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 mAddCommentButton.setEnabled(false);
-                /*
+
+                taggedUsers.clear();
+
                 String[] words = mCommentContentTextView.getText().toString().split(" ");
 
                 for (String word : words) {
-                    if (word.charAt(0) == '@') {
-                        for (User user : allUsers) {
-                            if (word.substring(1) == user.handle) {
-                                taggedUsers.add(user);
-                                break;
+                    if (word.length() > 0) {
+
+                        Log.i("word",word);
+
+                        if (word.charAt(0) == '@') {
+                            for (User user : allUsers) {
+                                if (word.substring(1).equals(user.handle)) {
+                                    taggedUsers.add(user);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-                */
-                JSONObject[] tagged = new JSONObject[0];
-                /*
+
+                JSONArray tagged = new JSONArray();
+
                 for (int i = 0; i < taggedUsers.size(); i++) {
-                    tagged[i] = new JSONObject();
+
+                    JSONObject o = new JSONObject();
                     try {
-                        tagged[i].put("id", String.valueOf(taggedUsers.get(i).id));
+                        o.put("id", String.valueOf(taggedUsers.get(i).id));
+                        tagged.put(o);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-                */
 
                 mRequestQueue.add(TBARequestFactory.PostCommentRequest(new Response.Listener<JSONObject>() {
                     @Override
@@ -203,7 +228,7 @@ public class AddCommentActivity extends Activity {
                             e.printStackTrace();
                         }
                     }
-                }, mFightId, null, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
+                }, mFightId, tagged, mCommentContentTextView.getText().toString(), new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         ThrowVolleyError(volleyError);
@@ -214,6 +239,11 @@ public class AddCommentActivity extends Activity {
         });
 
         mCommentContentTextView = (EditText)findViewById(R.id.add_comment_edit_text);
+
+        if (pendingReplyHandle != null) {
+            mCommentContentTextView.setText("@" + pendingReplyHandle + " ");
+        }
+
         mCommentContentTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
@@ -232,6 +262,50 @@ public class AddCommentActivity extends Activity {
                 } else {
                     mAddCommentButton.setEnabled(true);
                 }
+
+                String text = mCommentContentTextView.getText().toString().substring(0, mCommentContentTextView.getSelectionEnd());
+
+                int i = 0;
+
+                while ((mCommentContentTextView.getText().length() > mCommentContentTextView.getSelectionEnd() + i) &&
+                        (mCommentContentTextView.getText().charAt(mCommentContentTextView.getSelectionEnd() + i) != ' ')) {
+                    text += Character.toString(mCommentContentTextView.getText().charAt(mCommentContentTextView.getSelectionEnd() + i));
+                    i++;
+                }
+
+                // wordAlert("Text: " + text + ", length: " + String.valueOf(text.length()) );
+
+                if (isTaggedText(text)) {
+                    setTaggingMode(true);
+
+                    String commentText = mCommentContentTextView.getText().toString();
+
+                    int j = mCommentContentTextView.getSelectionEnd();
+
+                    while (j - 1 > 0 && commentText.charAt(j - 1) != '@') {
+                        j--;
+                    }
+
+                    // wordAlert(String.valueOf(j));
+
+                    partialCandidate = "";
+
+                    while (commentText.length() > j) {
+                        if (commentText.charAt(j) == ' ') {
+                            break;
+                        } else {
+                            partialCandidate += String.valueOf(commentText.charAt(j));
+                            j++;
+                        }
+                    }
+
+                    filterUsers();
+
+                    // wordAlert("Partial candidate: " + partialCandidate + ", length: " + String.valueOf(partialCandidate.length()));
+
+                } else {
+                    setTaggingMode(false);
+                }
             }
         });
 
@@ -243,12 +317,60 @@ public class AddCommentActivity extends Activity {
             }
         });
 
+        mTagCandidatesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                User u = mAdapter.users[position];
+                appendHandle(u);
+            }
+        });
+
         mNameTextView.setText(User.currentUser().name);
 
         mUserImageView.setImageUrl(User.currentUser().profileImageUrl,
                 mImageLoader);
 
         mHandleTextView.setText("@" + User.currentUser().handle);
+    }
+
+    private void filterUsers()
+    {
+        filteredUsers.clear();
+
+        for (int i = 0; i < allUsers.size() ; i++) {
+            User u = allUsers.get(i);
+
+            if (u.getHandle().contains(partialCandidate) || partialCandidate.length() == 0) {
+                filteredUsers.add(u);
+            }
+        }
+
+        mAdapter.users = filteredUsers.toArray(new User[filteredUsers.size()]);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void appendHandle(User user)
+    {
+        int j = mCommentContentTextView.getSelectionEnd();
+
+        String commentText = mCommentContentTextView.getText().toString();
+
+        while (commentText.length() > j) {
+            if (commentText.charAt(j) == ' ') {
+                j--;
+                break;
+            } else {
+                j++;
+            }
+        }
+
+        int i = j;
+
+        while (i - 1 > 0 && commentText.charAt(i - 1) != '@') {
+            i--;
+        }
+
+        mCommentContentTextView.getText().replace(i, j, user.getHandle() + " ");
     }
 
     private void finishActivity(JSONObject object)
@@ -269,6 +391,37 @@ public class AddCommentActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add_comment, menu);
         return true;
+    }
+
+    private boolean isTaggedText(String text)
+    {
+        if (text.length() == 0) {
+            return false;
+        } else if (text.charAt(text.length() - 1) == ' ') {
+            return false;
+        }
+        else if (text.length() == 1) {
+            if (text.charAt(0) == '@') {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if ((text.length() == 2) && (text.charAt(0) == '@')) {
+                return true;
+            }
+            if (text.charAt(text.length() - 2) == ' ') {
+                if (text.charAt(text.length() - 1) == '@') {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else {
+                String newText = text.substring(0, text.length() - 1);
+                return isTaggedText(newText);
+            }
+        }
     }
 
     @Override

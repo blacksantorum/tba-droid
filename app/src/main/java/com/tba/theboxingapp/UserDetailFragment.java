@@ -73,7 +73,6 @@ public class UserDetailFragment extends Fragment {
     private RequestQueue mRequestQueue;
 
     private ProgressBar mLoadActivityProgressBar;
-    private TextView mLoadActivityTextView;
 
     private UserDetailCommentsAdapter mCommentsAdapter;
     private UserDetailPicksAdapter mPicksAdapter;
@@ -88,8 +87,6 @@ public class UserDetailFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment UserDetailFragment.
      */
     // TODO: Rename and change types and number of parameters
@@ -144,7 +141,6 @@ public class UserDetailFragment extends Fragment {
         });
 
         mLoadActivityProgressBar = (ProgressBar)v.findViewById(R.id.loadActivityProgress);
-        mLoadActivityTextView = (TextView)v.findViewById(R.id.loadActivityTextView);
 
         mUserActivityListView = (ListView)v.findViewById(R.id.userActivityListView);
         mUserActivityListView.setVisibility(View.INVISIBLE);
@@ -158,8 +154,6 @@ public class UserDetailFragment extends Fragment {
     {
         mUserActivityListView.setVisibility(View.INVISIBLE);
         mLoadActivityProgressBar.setVisibility(View.VISIBLE);
-        mLoadActivityTextView.setText("Loading picks...");
-        mLoadActivityTextView.setVisibility(View.VISIBLE);
         mDisplayedActivity = DisplayedActivity.DISPLAY_PICKS;
 
         mRequestQueue.add(TBARequestFactory.UserPicksRequest(picksPage, mUserId, new Response.Listener<JSONObject>() {
@@ -190,7 +184,6 @@ public class UserDetailFragment extends Fragment {
                 mUserActivityListView.setAdapter(mPicksAdapter);
                 mPicksAdapter.notifyDataSetChanged();
                 mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
-                mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
 
                 try {
@@ -208,8 +201,6 @@ public class UserDetailFragment extends Fragment {
 
         mUserActivityListView.setVisibility(View.INVISIBLE);
         mLoadActivityProgressBar.setVisibility(View.VISIBLE);
-        mLoadActivityTextView.setText("Loading comments...");
-        mLoadActivityTextView.setVisibility(View.VISIBLE);
 
         mRequestQueue.add(TBARequestFactory.UserCommentsRequest(commentsPage, mUserId, new Response.Listener<JSONObject>() {
             @Override
@@ -240,7 +231,6 @@ public class UserDetailFragment extends Fragment {
                 mUserActivityListView.setAdapter(mCommentsAdapter);
                 mCommentsAdapter.notifyDataSetChanged();
                 mLoadActivityProgressBar.setVisibility(View.INVISIBLE);
-                mLoadActivityTextView.setVisibility(View.INVISIBLE);
                 mUserActivityListView.setVisibility(View.VISIBLE);
 
                 try {

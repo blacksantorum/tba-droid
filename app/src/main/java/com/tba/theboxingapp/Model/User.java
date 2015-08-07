@@ -2,8 +2,6 @@ package com.tba.theboxingapp.Model;
 
 import android.content.SharedPreferences;
 
-import com.parse.ParseTwitterUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,7 +57,6 @@ public class User extends BaseModel {
             this.id = userObject.getInt("id");
             this.handle = userObject.getString("screen_name");
             this.sessionToken = userObject.getString("session_token");
-            this.twitterId = ParseTwitterUtils.getTwitter().getUserId();
             this.profileImageUrl = userObject.getString("img");
             this.name = userObject.getString("name");
             this.isLoggedIn = true;

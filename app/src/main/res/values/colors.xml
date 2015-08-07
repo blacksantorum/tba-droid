@@ -10,4 +10,6 @@
     <color name="dark_gray">#4C4646</color>
     <color name="dark_red"> #5B0000 </color>
     <color name="shadow"> #7F000000 </color>
+    <color name="unread_color"> #F6F7F8 </color>
+    <color name="light_gray"> #D3D3D3 </color>
 </resources>

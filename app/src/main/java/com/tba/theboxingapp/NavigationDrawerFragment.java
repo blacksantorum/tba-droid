@@ -151,10 +151,10 @@ public class NavigationDrawerFragment extends Fragment {
             mSlideoutProfileTextView.setText(User.currentUser().getName());
         }
 
-        OptionItem[] itemArray = new OptionItem[2];
+        OptionItem[] itemArray = new OptionItem[3];
         itemArray[0] = new OptionItem("Featured", "Upcoming and recent fights",R.drawable.featured);
         itemArray[1] = new OptionItem("Past", "Past fights",R.drawable.recent);
-        // itemArray[2] = new OptionItem("Places", "Places to watch boxing", R.drawable.places);
+        itemArray[2] = new OptionItem("Notifications", "View your tagged comments", R.drawable.notifications);
 
         // mDrawerListView.setBackgroundColor(getResources().getColor(R.color.black));
         mDrawerListView.setAdapter(new MenuAdapter(getActivity(),itemArray));

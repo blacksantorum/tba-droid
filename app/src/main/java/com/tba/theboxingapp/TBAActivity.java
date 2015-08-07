@@ -31,14 +31,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.internal.id;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
-import com.parse.LogInCallback;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParseTwitterUtils;
-import com.parse.ParseUser;
-import com.parse.PushService;
+
 import com.tba.theboxingapp.Model.Comment;
 import com.tba.theboxingapp.Model.User;
 import com.tba.theboxingapp.Networking.TBAVolley;
@@ -84,6 +77,19 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
     {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0){
+            getFragmentManager().popBackStack();
+            Log.i("pop", "this pop");
+        }
+        // Default action on back pressed
+        else {
+            Log.i("pop", "super pop");
+            super.onBackPressed();
+        }
     }
 
     private void setUpDrawer()
@@ -160,8 +166,8 @@ public class TBAActivity extends Activity implements NavigationDrawerFragment.Na
         else if (position == 2) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, PlacesFragment.newInstance()).commit();
-            mTitle = "Places";
+                    .replace(R.id.container, NotificationFragment.newInstance()).commit();
+            mTitle = "Notifications";
         } else if (position == 3) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
