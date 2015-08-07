@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/boxerHeader"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:orientation="horizontal"
+        android:background="@color/material_blue_grey_800"
+        >
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/boxerAButton"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="D. GREEN"
+                android:gravity="center"
+                android:padding="10dp"
+                />
+
+
+            <ImageView
+                android:layout_above="@id/boxerAButton"
+                android:layout_centerHorizontal="true"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/overviewButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OVERVIEW"
+                android:gravity="center"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp"
+                />
+
+            <TextView
+                android:layout_above="@id/overviewButton"
+                android:layout_centerHorizontal="true"
+                android:layout_width="fill_parent"
+                android:layout_height="100dp"
+                android:text="VS"
+                android:gravity="center"
+                />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/boxerBButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="T. KOVACS"
+                android:gravity="center"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp"
+                />
+
+
+            <ImageView
+                android:layout_above="@id/boxerBButton"
+                android:layout_centerHorizontal="true"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                />
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/boxerHeader"
+        android:background="@color/material_blue_grey_800">
+        <View
+            android:background="@android:color/white"
+            android:id="@+id/underline_highlight"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+</RelativeLayout>
