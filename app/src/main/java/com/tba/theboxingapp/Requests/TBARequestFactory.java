@@ -243,6 +243,14 @@ public class TBARequestFactory {
         return new JsonArrayRequest(withSessionToken(url), listener, errorListener);
     }
 
+    public static JsonObjectRequest FetchUnpickedFightsRequest(Response.Listener<JSONObject> listener,
+                                                        Response.ErrorListener errorListener) {
+
+        String url = BASE_URL + "unpicked_fights";
+        return new JsonObjectRequest(Request.Method.GET, withSessionToken(url),null, listener, errorListener);
+
+    }
+
     public static JsonObjectRequest NotificationRequest(int page, Response.Listener<JSONObject> listener,
                                                         Response.ErrorListener errorListener) {
 
