@@ -47,7 +47,6 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/top_buttons"
-        android:layout_above="@id/bottom_buttons"
         android:background="@color/twitter_blue"
         />
 
@@ -56,6 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_below="@id/canvasView"
         android:layout_alignParentBottom="true"
         >
         <ImageButton
