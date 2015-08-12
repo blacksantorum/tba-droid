@@ -182,6 +182,13 @@ public class TBARequestFactory {
         return new JsonObjectRequest(TBARequestFactory.withSessionToken(url),params,listener, errorListener);
     }
 
+    public static JsonObjectRequest BoxerRequest(Response.Listener<JSONObject> listener, int boxerId, Response.ErrorListener errorListener)
+    {
+        String url = BASE_URL + "boxers/" + boxerId + "?session_token=" + User.currentUser().sessionToken;
+
+        return new JsonObjectRequest(url,null,listener, errorListener);
+    }
+
     public static JsonObjectRequest FightRequest(Response.Listener<JSONObject> listener, int fightId, Response.ErrorListener errorListener)
     {
         String url = BASE_URL + "fights/" + fightId + "?session_token=" + User.currentUser().sessionToken;
