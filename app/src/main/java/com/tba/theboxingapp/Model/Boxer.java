@@ -3,30 +3,31 @@ package com.tba.theboxingapp.Model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-
 /**
  * Created by christibbs on 9/16/14.
  */
 public class Boxer extends BaseModel {
-    private String fullName;
-    private String firstName;
-    private String lastName;
-    private String imgId;
-    private String imgUrl;
-    private int wins;
-    private int losses;
-    private int draws;
-    private int knockouts;
-    private String weightClass;
-    private String heightAndWeight;
-    private String birthdate;
-    private String nationality;
+    public String fullName;
+    public String firstName;
+    public String lastName;
+    public String imgId;
+    public String imgUrl;
+    public int wins;
+    public int losses;
+    public int draws;
+    public int knockouts;
+    public String weightClass;
+    public String heightAndWeight;
+    public String birthdate;
+    public String nationality;
 
     public Boxer(JSONObject object) {
         try {
             this.id = object.getInt("id");
             this.fullName = object.getString("full_name");
+            this.firstName = object.getString("first_name");
+            this.lastName = object.getString("last_name");
+            this.imgId = object.getString("img");
             this.imgUrl = object.getString("img_url");
         } catch (JSONException e) {
             e.printStackTrace();
